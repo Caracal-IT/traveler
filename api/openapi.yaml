@@ -1,0 +1,64 @@
+openapi: "3.0.0"
+info:
+  title: traveler
+  version: 1.0.0
+  description: Traveler service API
+  contact:
+    name: API Support
+servers:
+  - url: http://localhost:8080
+    description: Development server
+paths:
+  /:
+    get:
+      summary: Root endpoint
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "traveler: hello"
+  /ping:
+    get:
+      summary: Health check endpoint
+      description: Returns service health status with metadata
+      tags:
+        - health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  message:
+                    type: string
+                    example: pong
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: "2025-12-05T10:30:45.123456Z"
+                  version:
+                    type: string
+                    example: "1.0.0"
+  /ping/simple:
+    get:
+      summary: Simple health check
+      description: Returns simple text response for load balancers
+      tags:
+        - health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+

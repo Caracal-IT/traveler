@@ -1,0 +1,32 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+traveler
+*.test
+*.out
+
+# Go workspace file
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# HTTP Client private environment files
+http-client.private.env.json
+.httpRequests/
+
+# Log files
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+

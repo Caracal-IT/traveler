@@ -1,0 +1,7 @@
+# Error level configuration - only logs errors and fatal messages
+server:
+  port: 8080
+
+log:
+  level: error
+

@@ -1,0 +1,189 @@
+### Traveler API - Ping Endpoints Test File
+### Use with IntelliJ IDEA, GoLand, or VS Code REST Client extension
+
+### Variables
+@baseUrl = http://localhost:9090
+@contentType = application/json
+
+###############################################################################
+### Health Check Endpoints
+###############################################################################
+
+### 1. Ping - JSON Health Check
+# Returns detailed health status with metadata
+GET {{baseUrl}}/ping
+Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is JSON", function() {
+        const contentType = response.contentType.mimeType;
+        client.assert(contentType === "application/json", "Expected 'application/json' but got '" + contentType + "'");
+    });
+
+    client.test("Response has correct structure", function() {
+        client.assert(response.body.hasOwnProperty("status"), "Response missing 'status' field");
+        client.assert(response.body.hasOwnProperty("message"), "Response missing 'message' field");
+        client.assert(response.body.hasOwnProperty("timestamp"), "Response missing 'timestamp' field");
+        client.assert(response.body.status === "ok", "Status is not 'ok'");
+        client.assert(response.body.message === "pong", "Message is not 'pong'");
+    });
+%}
+
+###
+
+### 2. Ping Simple - Plain Text Health Check
+# Returns simple "pong" response for load balancers
+GET {{baseUrl}}/ping/simple
+Accept: text/plain
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Response content-type is plain text", function() {
+        const contentType = response.contentType.mimeType;
+        client.assert(contentType === "text/plain", "Expected 'text/plain' but got '" + contentType + "'");
+    });
+
+    client.test("Response body is 'pong'", function() {
+        client.assert(response.body === "pong", "Expected 'pong' but got '" + response.body + "'");
+    });
+%}
+
+###
+
+### 3. Root Endpoint
+# Basic root endpoint test
+GET {{baseUrl}}/
+Accept: text/plain
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###############################################################################
+### Performance Testing
+###############################################################################
+
+### 4. Ping with User-Agent Header
+# Test with custom headers
+GET {{baseUrl}}/ping
+Accept: application/json
+User-Agent: Traveler-Test-Client/1.0
+
+###
+
+### 5. Ping Simple with Custom Headers
+GET {{baseUrl}}/ping/simple
+Accept: text/plain
+User-Agent: LoadBalancer/1.0
+X-Request-ID: test-12345
+
+###############################################################################
+### Load Balancer Simulation
+###############################################################################
+
+### 6. AWS ALB Health Check Simulation
+GET {{baseUrl}}/ping/simple
+User-Agent: ELB-HealthChecker/2.0
+
+###
+
+### 7. Kubernetes Health Check Simulation
+GET {{baseUrl}}/ping/simple
+User-Agent: kube-probe/1.28
+
+###############################################################################
+### Error Scenarios (should still work)
+###############################################################################
+
+### 8. Ping with Wrong Method (should return 405)
+POST {{baseUrl}}/ping
+Content-Type: application/json
+
+###
+
+### 9. Non-existent Endpoint (should return 404)
+GET {{baseUrl}}/nonexistent
+
+###############################################################################
+### Multiple Requests for Latency Testing
+###############################################################################
+
+### 10. Ping Request 1
+GET {{baseUrl}}/ping
+
+###
+
+### 11. Ping Request 2
+GET {{baseUrl}}/ping
+
+###
+
+### 12. Ping Request 3
+GET {{baseUrl}}/ping
+
+###
+
+### 13. Simple Ping Request 1
+GET {{baseUrl}}/ping/simple
+
+###
+
+### 14. Simple Ping Request 2
+GET {{baseUrl}}/ping/simple
+
+###
+
+### 15. Simple Ping Request 3
+GET {{baseUrl}}/ping/simple
+
+###############################################################################
+### Notes
+###############################################################################
+
+# How to use this file:
+#
+# 1. Start the server:
+#    go run ./cmd/traveler
+#
+# 2. In your IDE:
+#    - IntelliJ IDEA/GoLand: Click the green play button next to each request
+#    - VS Code: Install "REST Client" extension, click "Send Request"
+#
+# 3. Run all requests:
+#    - IntelliJ/GoLand: Right-click file > Run All Requests in File
+#    - VS Code: Use Command Palette > REST Client: Send All Requests
+#
+# 4. View results in the Response panel
+#
+# 5. Tests will automatically validate responses
+
+###############################################################################
+### Environment Variables (Optional)
+###############################################################################
+
+# You can create environment-specific files:
+# - http-client.env.json (for different environments)
+# - http-client.private.env.json (for secrets, gitignored)
+#
+# Example http-client.env.json:
+# {
+#   "dev": {
+#     "baseUrl": "http://localhost:8080"
+#   },
+#   "staging": {
+#     "baseUrl": "https://staging.example.com"
+#   },
+#   "prod": {
+#     "baseUrl": "https://api.example.com"
+#   }
+# }
+

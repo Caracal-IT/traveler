@@ -1,0 +1,8 @@
+# Configuration with file logging enabled
+server:
+  port: 8080
+
+log:
+  level: info
+  file: logs/app.log  # Logs will be written to both stdout and this file
+

@@ -1,0 +1,7 @@
+# Debug level configuration - logs everything
+server:
+  port: 8080
+
+log:
+  level: debug
+
