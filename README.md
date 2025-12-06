@@ -59,7 +59,7 @@ curl http://localhost:8080/ping/simple
 
 
 
-### Packages
+### Offerings
 
 Protected endpoint (requires a valid Keycloak access token for audience `traveler-app`):
 
@@ -81,7 +81,7 @@ curl -s -X POST \
 2. Call the endpoint with the Bearer token:
 ```
 TOKEN="$(# command above to fetch token)"
-curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/packages/specials
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/offerings/specials
 ```
 
 Configuration for auth is under `auth` in `configs/config.yaml` and defaults to the local Keycloak realm.

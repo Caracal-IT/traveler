@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	specials "traveler/internal/handlers/packages"
+	offerings "traveler/internal/handlers/offerings"
 	"traveler/pkg/auth"
 	"traveler/pkg/config"
 
@@ -17,6 +17,6 @@ func RegisterRoutes(app *fiber.App, cfg *config.Config) {
 
 	// Authenticated routes
 	authMW := auth.JWTMiddleware(cfg)
-	packages := api.Group("/packages", authMW)
-	packages.Get("/specials", specials.Handler)
+	offeringsGroup := api.Group("/offerings", authMW)
+	offeringsGroup.Get("/specials", offerings.SpecialsHandler)
 }

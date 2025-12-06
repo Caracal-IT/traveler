@@ -1,12 +1,12 @@
-package specials
+package offerings
 
 import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Handler serves the authenticated specials endpoint.
-// Route: GET /api/packages/specials
-func Handler(c *fiber.Ctx) error {
+// SpecialsHandler serves the authenticated specials endpoint.
+// Route: GET /api/offerings/specials
+func SpecialsHandler(c *fiber.Ctx) error {
 	// Example payload; in real use this would be fetched from a service/db
 	data := fiber.Map{
 		"items": []fiber.Map{
