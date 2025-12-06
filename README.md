@@ -63,7 +63,7 @@ curl http://localhost:8080/ping/simple
 
 Protected endpoint (requires a valid Keycloak access token for audience `traveler-app`):
 
-- GET /api/packages/specials — returns sample specials data
+- GET /api/offerings/specials — returns sample specials data
 
 Usage example (after starting Keycloak and importing realm):
 
@@ -85,3 +85,10 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/offerings/speci
 ```
 
 Configuration for auth is under `auth` in `configs/config.yaml` and defaults to the local Keycloak realm.
+
+**Troubleshooting 401 errors?** Run the fix script:
+```bash
+./scripts/apply-auth-fix.sh
+```
+See [Troubleshooting Guide](docs/troubleshooting/README.md) for more details.
+
