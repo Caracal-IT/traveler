@@ -36,7 +36,9 @@ Services:
 
 Open the Keycloak Admin Console at http://localhost:8081 and log in with the admin credentials you set.
 
-On startup, a realm called `traveler-dev` is automatically imported with a preconfigured client and users (see below). Note: This dev setup does not persist Keycloak data to a volume. Removing the container will remove realms, clients, and users; they will be re-imported next start.
+On startup, a realm called `traveler-dev` is automatically imported with a preconfigured client and users (see below). The compose config explicitly points Keycloak to the realm file via `KEYCLOAK_IMPORT` and starts with `start-dev --import-realm`.
+
+Note: This dev setup does not persist Keycloak data to a volume. Removing the container will remove realms, clients, and users; they will be re-imported next start.
 
 ## 3) What's provisioned automatically
 - Realm: `traveler-dev`
@@ -71,10 +73,13 @@ http://localhost:8081/realms/traveler-dev/.well-known/openid-configuration
 ```
 
 ## Troubleshooting
-- Ensure both KEYCLOAK_ADMIN and KEYCLOAK_ADMIN_PASSWORD are set
-- Port conflict: change the host port mapping in docker/docker-compose.yml
-- View logs: from the docker directory, run: docker compose logs -f keycloak
-- Reset to a clean state: from the docker directory, run: docker compose down -v (deletes data)
+- Ensure both `KEYCLOAK_ADMIN` and `KEYCLOAK_ADMIN_PASSWORD` are set (Keycloak will not start otherwise)
+- Port conflict: change the host port mapping in `docker/docker-compose.yml`
+- View logs: from the docker directory, run: `docker compose logs -f keycloak`
+- If the realm was not imported on a previous run, reset to a clean state so the import runs on first start:
+  - From the docker directory, run: `docker compose down -v`
+  - Then start again: `docker compose up -d --build`
+  - The compose file sets `KEYCLOAK_IMPORT=/opt/keycloak/data/import/traveler-dev-realm.json` and mounts the import folder at `/opt/keycloak/data/import` to ensure import occurs.
 
 ## Stop services
 ```
