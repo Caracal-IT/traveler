@@ -14,3 +14,16 @@ services:
       - ../configs:/root/configs:ro
       - ../logs:/root/logs
     restart: unless-stopped
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev
+    ports:
+      - "8081:8080" # expose Keycloak on localhost:8081
+    env_file:
+      # Checked-in defaults (non-sensitive). You can override any values in the next file.
+      - ./keycloak.defaults.env
+      # User credentials file (checked in with placeholders). Set your values locally before running.
+      - ./keycloak.user.env
+    restart: unless-stopped
