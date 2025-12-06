@@ -7,11 +7,12 @@ import (
 	"sync"
 	"time"
 
+	"traveler/pkg/config"
+	"traveler/pkg/log"
+
 	"github.com/MicahParks/keyfunc/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	"traveler/pkg/config"
-	"traveler/pkg/log"
 )
 
 var (
@@ -76,9 +77,11 @@ func JWTMiddleware(cfg *config.Config) fiber.Handler {
 			return fiber.ErrUnauthorized
 		}
 
+		// First, validate signature, issuer, and algorithm. We'll handle audience
+		// validation manually to be compatible with Keycloak where `aud` may be
+		// "account" and the client id appears in `azp` (authorized party).
 		parsed, err := jwt.Parse(tokenString, jwks.Keyfunc,
-			jwt.WithAudience(audience),
-			jwt.WithIssuer(issuer),
+			// Validate signature algorithm; we'll validate issuer manually for better dev flexibility
 			jwt.WithValidMethods([]string{"RS256", "RS384", "RS512"}),
 		)
 		if err != nil || !parsed.Valid {
@@ -89,10 +92,88 @@ func JWTMiddleware(cfg *config.Config) fiber.Handler {
 			return fiber.ErrUnauthorized
 		}
 
-		// Store token claims in context for handlers to use
+		// Issuer validation (done manually to tolerate http/https & trailing slash differences in dev)
 		if claims, ok := parsed.Claims.(jwt.MapClaims); ok {
+			issClaim, _ := claims["iss"].(string)
+			if !issuerAllowed(issuer, issClaim) {
+				log.Warn("token issuer mismatch", "expected_issuer", issuer, "token_iss", issClaim)
+				return fiber.ErrUnauthorized
+			}
+
+			// Audience/Client validation compatible with Keycloak
+			// 1) Try standard aud claim (string or array)
+			audOK := false
+			if rawAud, exists := claims["aud"]; exists {
+				switch v := rawAud.(type) {
+				case string:
+					if strings.EqualFold(v, audience) {
+						audOK = true
+					}
+				case []interface{}:
+					for _, item := range v {
+						if s, ok := item.(string); ok && strings.EqualFold(s, audience) {
+							audOK = true
+							break
+						}
+					}
+				}
+			}
+
+			// 2) Fallback to Keycloak's `azp` (authorized party == client_id)
+			if !audOK {
+				if azp, ok := claims["azp"].(string); ok && strings.EqualFold(azp, audience) {
+					audOK = true
+				}
+			}
+
+			// 3) Fallback to Keycloak's `resource_access` map which lists client roles
+			//    Accept token if it contains an entry for our client id regardless of roles
+			if !audOK {
+				if ra, ok := claims["resource_access"].(map[string]interface{}); ok {
+					if _, exists := ra[audience]; exists {
+						audOK = true
+					}
+				}
+			}
+
+			if !audOK {
+				log.Warn("token audience/azp mismatch", "expected_audience", audience, "claims_aud", claims["aud"], "claims_azp", claims["azp"])
+				return fiber.ErrUnauthorized
+			}
+
+			// Store token claims in context for handlers to use
 			c.Locals("claims", claims)
 		}
 		return c.Next()
 	}
+}
+
+// issuerAllowed compares expected issuer with token issuer allowing small
+// variations common in local development (http vs https and trailing slash).
+func issuerAllowed(expected, actual string) bool {
+	if expected == "" || actual == "" {
+		return false
+	}
+	norm := func(s string) string {
+		return strings.TrimRight(s, "/")
+	}
+	e := norm(expected)
+	a := norm(actual)
+	if strings.EqualFold(e, a) {
+		return true
+	}
+	// Allow http/https swap for local dev
+	swapScheme := func(u string) string {
+		if strings.HasPrefix(u, "http://") {
+			return "https://" + strings.TrimPrefix(u, "http://")
+		}
+		if strings.HasPrefix(u, "https://") {
+			return "http://" + strings.TrimPrefix(u, "https://")
+		}
+		return u
+	}
+	if strings.EqualFold(swapScheme(e), a) {
+		return true
+	}
+	return false
 }
