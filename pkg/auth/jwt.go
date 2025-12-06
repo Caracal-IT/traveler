@@ -80,9 +80,13 @@ func JWTMiddleware(cfg *config.Config) fiber.Handler {
 		// First, validate signature, issuer, and algorithm. We'll handle audience
 		// validation manually to be compatible with Keycloak where `aud` may be
 		// "account" and the client id appears in `azp` (authorized party).
-		parsed, err := jwt.Parse(tokenString, jwks.Keyfunc,
+		parsed, err := jwt.Parse(
+			tokenString,
+			jwks.Keyfunc,
 			// Validate signature algorithm; we'll validate issuer manually for better dev flexibility
 			jwt.WithValidMethods([]string{"RS256", "RS384", "RS512"}),
+			// Allow small clock skew to avoid 401 due to exp/nbf/iat drift in local/dev environments
+			jwt.WithLeeway(60*time.Second),
 		)
 		if err != nil || !parsed.Valid {
 			if err == nil {
