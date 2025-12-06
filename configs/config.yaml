@@ -6,3 +6,8 @@ log:
   level: info  # Options: debug, info, warn, error
   file: ""     # Optional: logs/app.log (empty = stdout only)
 
+auth:
+  # Default local Keycloak (from docker compose)
+  issuer: http://localhost:8081/realms/traveler-dev
+  audience: traveler-app
+

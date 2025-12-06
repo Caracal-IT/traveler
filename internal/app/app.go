@@ -25,7 +25,7 @@ func Run(ctx context.Context, cfg *config.Config) error {
 	})
 
 	// Register additional routes
-	handlers.RegisterRoutes(app)
+	handlers.RegisterRoutes(app, cfg)
 
 	// run server in background
 	errCh := make(chan error, 1)

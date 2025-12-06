@@ -1,98 +1,3 @@
-# traveler
-
-Minimal Go project skeleton for the traveler service with structured logging and configuration management.
-
-## Quick start
-
-Build:
-
-```bash
-go build ./...
-```
-
-Run (from project root):
-
-```bash
-go run ./cmd/traveler
-```
-
-## Configuration
-
-Configuration is loaded from `configs/config.yaml`. Example:
-
-```yaml
-server:
-  port: 8080
-
-log:
-  level: info  # Options: debug, info, warn, error
-  file: ""     # Optional: logs/app.log (empty = stdout only)
-```
-
-### File Logging
-
-To enable logging to a file, specify a path in the `log.file` field:
-
-```yaml
-log:
-  level: info
-  file: logs/app.log  # Logs go to BOTH stdout and this file
-```
-
-**Note:** Make sure the directory exists before starting the app:
-```bash
-mkdir -p logs
-```
-
-### Log Levels
-
-The application supports the following log levels (in order of verbosity):
-
-- **debug**: Most verbose, logs everything including debug messages
-- **info**: Logs informational messages, warnings, and errors
-- **warn**: Logs warnings and errors only
-- **error**: Logs only error messages
-
-When you set a minimum log level in the config file, only messages at that level or higher will be logged.
-
-Example configs are provided:
-- `configs/config.yaml` - Info level (default)
-- `configs/config.debug.yaml` - Debug level (all messages)
-- `configs/config.error.yaml` - Error level (errors only)
-
-### Using the Logger
-
-The `pkg/log` package provides convenient methods:
-
-```go
-import "traveler/pkg/log"
-
-log.Debug("debug message", "key", "value")
-log.Info("info message", "key", "value")
-log.Warn("warning message", "key", "value")
-log.Error("error message", "key", "value")
-log.Fatal("fatal message", "key", "value")  // exits the program
-```
-
-All logs are output in structured JSON format with timestamps, caller information, and custom key-value pairs.
-
-## Testing
-
-### Test log level filtering
-```bash
-go run ./cmd/test-logging
-```
-
-### Test file logging
-```bash
-mkdir -p logs
-go run ./cmd/test-file-logging
-cat logs/app.log  # View the log file
-```
-
-## API Endpoints
-
-### Health Check
 
 **GET /ping** - JSON health check with metadata
 ```bash
@@ -152,3 +57,31 @@ curl http://localhost:8080/ping/simple
 - `api` - OpenAPI placeholder
 - `logs` - log files directory (created at runtime)
 
+
+
+### Packages
+
+Protected endpoint (requires a valid Keycloak access token for audience `traveler-app`):
+
+- GET /api/packages/specials — returns sample specials data
+
+Usage example (after starting Keycloak and importing realm):
+
+1. Obtain a token (using the pre-provisioned `api-user`):
+```
+curl -s -X POST \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=password" \
+  -d "client_id=traveler-app" \
+  -d "username=api-user" \
+  -d "password=ApiUser#1!" \
+  http://localhost:8081/realms/traveler-dev/protocol/openid-connect/token | jq -r .access_token
+```
+
+2. Call the endpoint with the Bearer token:
+```
+TOKEN="$(# command above to fetch token)"
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/packages/specials
+```
+
+Configuration for auth is under `auth` in `configs/config.yaml` and defaults to the local Keycloak realm.
