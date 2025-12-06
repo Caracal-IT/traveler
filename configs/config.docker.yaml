@@ -7,6 +7,12 @@ log:
   file: ""  # logs go to stdout; container also mounts /root/logs if needed
 
 auth:
-  # Use Docker service DNS name for Keycloak, not localhost
-  issuer: http://keycloak:8080/realms/traveler-dev
+  # IMPORTANT: The token's `iss` (issuer) is based on where the token was obtained.
+  # Our dev HTTP client fetches tokens from http://localhost:8081, so inside the
+  # container we must keep the issuer matching that exact value to pass issuer checks.
+  issuer: http://localhost:8081/realms/traveler-dev
   audience: traveler-app
+  # However, inside the Docker network, Keycloak is reachable via the service DNS
+  # name `keycloak:8080`. Override the JWKS URL so the app can fetch signing keys
+  # from the container network while still validating the public issuer above.
+  jwks_url: http://keycloak:8080/realms/traveler-dev/protocol/openid-connect/certs
