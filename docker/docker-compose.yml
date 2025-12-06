@@ -9,10 +9,12 @@ services:
       dockerfile: docker/Dockerfile
     ports:
       - "8080:8080"
-    # Mount configs and logs from the host (optional but useful)
+    # Mount docker-specific config and logs from the host
     volumes:
-      - ../configs:/root/configs:ro
+      - ../configs/config.docker.yaml:/root/configs/config.yaml:ro
       - ../logs:/root/logs
+    depends_on:
+      - keycloak
     restart: unless-stopped
 
   keycloak:

@@ -22,9 +22,8 @@ var (
 	mu       sync.RWMutex
 )
 
-// getJWKS returns a cached JWKS for the given issuer.
-func getJWKS(issuer string) (*keyfunc.JWKS, error) {
-	jwksURL := strings.TrimRight(issuer, "/") + "/protocol/openid-connect/certs"
+// getJWKS returns a cached JWKS for the given JWKS URL.
+func getJWKS(jwksURL string) (*keyfunc.JWKS, error) {
 	mu.RLock()
 	if jwks, ok := jwksMap[jwksURL]; ok && jwks != nil {
 		mu.RUnlock()
@@ -59,6 +58,11 @@ func getJWKS(issuer string) (*keyfunc.JWKS, error) {
 func JWTMiddleware(cfg *config.Config) fiber.Handler {
 	issuer := cfg.Auth.Issuer
 	audience := cfg.Auth.Audience
+	// Compute JWKS URL — allow override via config to support containerized envs where issuer host differs
+	jwksURL := strings.TrimRight(issuer, "/") + "/protocol/openid-connect/certs"
+	if cfg.Auth.JWKSURL != "" {
+		jwksURL = cfg.Auth.JWKSURL
+	}
 
 	return func(c *fiber.Ctx) error {
 		authz := c.Get("Authorization")
@@ -71,7 +75,7 @@ func JWTMiddleware(cfg *config.Config) fiber.Handler {
 		}
 		tokenString := parts[1]
 
-		jwks, err := getJWKS(issuer)
+		jwks, err := getJWKS(jwksURL)
 		if err != nil {
 			log.Error("failed to get JWKS", "error", err)
 			return fiber.ErrUnauthorized

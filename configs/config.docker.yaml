@@ -1,0 +1,12 @@
+# Docker runtime configuration for traveler
+server:
+  port: 8080
+
+log:
+  level: info
+  file: ""  # logs go to stdout; container also mounts /root/logs if needed
+
+auth:
+  # Use Docker service DNS name for Keycloak, not localhost
+  issuer: http://keycloak:8080/realms/traveler-dev
+  audience: traveler-app

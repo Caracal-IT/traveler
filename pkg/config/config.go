@@ -30,6 +30,9 @@ type AuthConfig struct {
 	Issuer string `mapstructure:"issuer"`
 	// Audience is the expected audience/client_id in tokens, e.g. traveler-app
 	Audience string `mapstructure:"audience"`
+	// JWKSURL optionally overrides the JWKS endpoint URL used to validate tokens.
+	// If empty, it will be derived from Issuer as: <issuer>/protocol/openid-connect/certs
+	JWKSURL string `mapstructure:"jwks_url"`
 }
 
 // Load reads configuration from a YAML file.
