@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  traveler:
+    container_name: traveler
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    # Mount configs and logs from the host (optional but useful)
+    volumes:
+      - ../configs:/root/configs:ro
+      - ../logs:/root/logs
+    restart: unless-stopped
