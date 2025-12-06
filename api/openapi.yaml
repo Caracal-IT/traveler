@@ -5,6 +5,11 @@ info:
   description: Traveler service API
   contact:
     name: API Support
+tags:
+  - name: health
+    description: Health and readiness endpoints
+  - name: offerings
+    description: Travel offerings such as specials
 servers:
   - url: http://localhost:8080
     description: Development server
@@ -61,4 +66,49 @@ paths:
               schema:
                 type: string
                 example: pong
+  /api/offerings/specials:
+    get:
+      summary: Get specials
+      description: Returns a list of special travel packages. Requires a valid Keycloak access token.
+      tags:
+        - offerings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of specials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: sp-1001
+                        name:
+                          type: string
+                          example: Winter Escape
+                        price:
+                          type: number
+                          format: float
+                          example: 799.0
+                        currency:
+                          type: string
+                          example: USD
+        '401':
+          description: Unauthorized - missing or invalid token
+        '403':
+          description: Forbidden
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
