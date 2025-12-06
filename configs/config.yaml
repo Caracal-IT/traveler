@@ -1,6 +1,6 @@
 # Example configuration for traveler
 server:
-  port: 9090
+  port: 8080
 
 log:
   level: info  # Options: debug, info, warn, error
