@@ -48,10 +48,10 @@ Note: This dev setup does not persist Keycloak data to a volume. Removing the co
 - Roles:
   - Realm role: `api-user`
 - Users:
-  - Admin user: `kc_admin2` with password `Admin#1!` (has `realm-management -> realm-admin` role; can administer the realm)
+  - Admin user: `caracal` with password `Admin#1!` (has `realm-management -> realm-admin` role; can administer the realm)
   - API user: `api-user` with password `ApiUser#1!` (granted realm role `api-user`)
 
-You can log in to the Admin Console either with the bootstrap admin (from `docker/keycloak.user.env`) or with the pre-provisioned `kc_admin2` above.
+You can log in to the Admin Console either with the bootstrap admin (from `docker/keycloak.user.env`) or with the pre-provisioned `caracal` above.
 
 ## 4) Get a token (quick CLI test)
 Replace placeholders and run:
