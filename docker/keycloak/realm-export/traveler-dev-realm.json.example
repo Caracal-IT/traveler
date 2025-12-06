@@ -1,6 +1,10 @@
 {
   "realm": "traveler-dev",
   "enabled": true,
+  "sslRequired": "none",
+  "attributes": {
+    "frontendUrl": "http://localhost:8081"
+  },
   "registrationAllowed": false,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
@@ -38,13 +42,16 @@
   ],
   "users": [
     {
-      "username": "kc_admin2",
+      "username": "caracal",
       "enabled": true,
-      "emailVerified": false,
+      "emailVerified": true,
+      "email": "caracal@example.com",
+      "firstName": "Cara",
+      "lastName": "Cal",
       "credentials": [
         {
           "type": "password",
-          "value": your-strong-password,
+          "value": "Admin#1!",
           "temporary": false
         }
       ],
@@ -57,11 +64,14 @@
     {
       "username": "api-user",
       "enabled": true,
-      "emailVerified": false,
+      "emailVerified": true,
+      "email": "api-user@example.com",
+      "firstName": "Api",
+      "lastName": "User",
       "credentials": [
         {
           "type": "password",
-          "value": your-strong-password,
+          "value": "ApiUser#1!",
           "temporary": false
         }
       ],

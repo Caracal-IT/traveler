@@ -29,6 +29,13 @@ services:
     environment:
       # Be explicit about the import location/file so Keycloak surely picks it up on first start
       KEYCLOAK_IMPORT: /opt/keycloak/data/import/traveler-dev-realm.json
+      # Relax hostname/HTTPS requirements for local development to avoid 403 HTTPS-required errors
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+      # If you later front Keycloak with a reverse proxy/SSL terminator, keep this as 'edge'
+      KC_PROXY: edge
+      # Explicitly set hostname URL to HTTP for local development
+      KC_HOSTNAME_URL: http://localhost:8081
     volumes:
       - ./keycloak/realm-export:/opt/keycloak/data/import:ro
     restart: unless-stopped
