@@ -1,0 +1,73 @@
+{
+  "realm": "traveler-dev",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "internationalizationEnabled": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "api-user",
+        "description": "Basic API user role for traveler-dev"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "traveler-app",
+      "name": "Traveler App (local)",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "kc_admin2",
+      "enabled": true,
+      "emailVerified": false,
+      "credentials": [
+        {
+          "type": "password",
+          "value": your-strong-password,
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "realm-management": [
+          "realm-admin"
+        ]
+      }
+    },
+    {
+      "username": "api-user",
+      "enabled": true,
+      "emailVerified": false,
+      "credentials": [
+        {
+          "type": "password",
+          "value": your-strong-password,
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "api-user"
+      ]
+    }
+  ]
+}

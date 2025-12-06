@@ -1,6 +1,6 @@
 # Getting Started with Keycloak (Local Development)
 
-This guide explains how to run Keycloak locally using this project's Docker setup and perform minimal admin steps for testing.
+This guide explains how to run Keycloak locally using this project's Docker setup. Keycloak is auto-provisioned on startup with a realm, client, and users so you don't have to click around.
 
 ## Prerequisites
 - Docker and Docker Compose installed
@@ -12,15 +12,15 @@ This guide explains how to run Keycloak locally using this project's Docker setu
 - docker/keycloak.user.env – your local admin credentials (checked in with placeholders; set values locally)
 - docker/keycloak.user.env.example – reference example
 
-## 1) Set admin credentials
-Edit docker/keycloak.user.env and set both variables:
+## 1) Set bootstrap admin credentials
+Edit `docker/keycloak.user.env` and set both variables (used by Keycloak to start the server). The file is checked in with BLANK values by default, so you must provide your own locally before starting:
 
 ```
 KEYCLOAK_ADMIN=your-username
 KEYCLOAK_ADMIN_PASSWORD=your-strong-password
 ```
 
-Keycloak will not start unless both variables are defined.
+Keycloak will not start unless both variables are defined. These are the bootstrap Admin Console credentials.
 
 ## 2) Start services
 From the project root:
@@ -36,44 +36,38 @@ Services:
 
 Open the Keycloak Admin Console at http://localhost:8081 and log in with the admin credentials you set.
 
-Note: This dev setup does not persist Keycloak data to a volume. Removing the container will remove realms, clients, and users.
+On startup, a realm called `traveler-dev` is automatically imported with a preconfigured client and users (see below). Note: This dev setup does not persist Keycloak data to a volume. Removing the container will remove realms, clients, and users; they will be re-imported next start.
 
-## 3) Create a realm
-1. In the Admin Console, open the realm dropdown (top-left)
-2. Click Create realm
-3. Name it (for example, traveler-dev) and save
+## 3) What's provisioned automatically
+- Realm: `traveler-dev`
+- Client: `traveler-app` (OIDC public)
+  - Redirect URIs: `http://localhost:8080/*`
+  - Web origins: `http://localhost:8080`
+- Roles:
+  - Realm role: `api-user`
+- Users:
+  - Admin user: `kc_admin2` with password `Admin#1!` (has `realm-management -> realm-admin` role; can administer the realm)
+  - API user: `api-user` with password `ApiUser#1!` (granted realm role `api-user`)
 
-## 4) Create a client (OIDC)
-1. Inside your realm, go to Clients -> Create client
-2. Client ID: traveler-app (or your choice)
-3. Protocol: OpenID Connect -> Next
-4. Configure:
-   - Valid redirect URIs: http://localhost:8080/* (for local testing)
-   - Web origins: http://localhost:8080 (or * for broad local testing only)
-5. Save
+You can log in to the Admin Console either with the bootstrap admin (from `docker/keycloak.user.env`) or with the pre-provisioned `kc_admin2` above.
 
-## 5) Create a test user
-1. Users -> Add user -> set username (for example, alice) -> Save
-2. Open the user -> Credentials -> Set password
-3. Provide a password and disable Temporary if you do not want to force a reset
-
-## 6) Get a token (quick CLI test)
+## 4) Get a token (quick CLI test)
 Replace placeholders and run:
 
 ```
 curl -X POST \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=password" \
-  -d "client_id=<client_id>" \
-  -d "username=<username>" \
-  -d "password=<password>" \
-  http://localhost:8081/realms/<realm>/protocol/openid-connect/token
+  -d "client_id=traveler-app" \
+  -d "username=api-user" \
+  -d "password=ApiUser#1!" \
+  http://localhost:8081/realms/traveler-dev/protocol/openid-connect/token
 ```
 
 Well-known config for your realm:
 
 ```
-http://localhost:8081/realms/<realm>/.well-known/openid-configuration
+http://localhost:8081/realms/traveler-dev/.well-known/openid-configuration
 ```
 
 ## Troubleshooting

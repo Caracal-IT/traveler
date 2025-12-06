@@ -18,7 +18,7 @@ services:
   keycloak:
     container_name: keycloak
     image: quay.io/keycloak/keycloak:26.0
-    command: start-dev
+    command: start-dev --import-realm
     ports:
       - "8081:8080" # expose Keycloak on localhost:8081
     env_file:
@@ -26,4 +26,9 @@ services:
       - ./keycloak.defaults.env
       # User credentials file (checked in with placeholders). Set your values locally before running.
       - ./keycloak.user.env
+    environment:
+      # Be explicit about the import location/file so Keycloak surely picks it up on first start
+      KEYCLOAK_IMPORT: /opt/keycloak/data/import/traveler-dev-realm.json
+    volumes:
+      - ./keycloak/realm-export:/opt/keycloak/data/import:ro
     restart: unless-stopped

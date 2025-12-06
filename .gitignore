@@ -33,3 +33,4 @@ Thumbs.db
 # (intentionally left blank)
 
 /docker/keycloak.user.env
+/docker/keycloak/realm-export/traveler-dev-realm.json
