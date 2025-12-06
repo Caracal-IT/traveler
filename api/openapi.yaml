@@ -20,7 +20,7 @@ paths:
               schema:
                 type: string
                 example: "traveler: hello"
-  /ping:
+  /api/ping:
     get:
       summary: Health check endpoint
       description: Returns service health status with metadata
@@ -47,7 +47,7 @@ paths:
                   version:
                     type: string
                     example: "1.0.0"
-  /ping/simple:
+  /api/ping/simple:
     get:
       summary: Simple health check
       description: Returns simple text response for load balancers

@@ -18,8 +18,8 @@ echo "Testing ping endpoints..."
 echo ""
 
 # Test JSON ping endpoint
-echo "1. Testing /ping (JSON response):"
-PING_RESPONSE=$(curl -s http://localhost:8080/ping)
+echo "1. Testing /api/ping (JSON response):"
+PING_RESPONSE=$(curl -s http://localhost:8080/api/ping)
 echo "   Response: $PING_RESPONSE"
 
 if echo "$PING_RESPONSE" | grep -q '"status":"ok"'; then
@@ -32,8 +32,8 @@ fi
 echo ""
 
 # Test simple ping endpoint
-echo "2. Testing /ping/simple (plain text response):"
-SIMPLE_RESPONSE=$(curl -s http://localhost:8080/ping/simple)
+echo "2. Testing /api/ping/simple (plain text response):"
+SIMPLE_RESPONSE=$(curl -s http://localhost:8080/api/ping/simple)
 echo "   Response: $SIMPLE_RESPONSE"
 
 if [ "$SIMPLE_RESPONSE" = "pong" ]; then
@@ -47,7 +47,7 @@ echo ""
 
 # Test response time
 echo "3. Testing response time:"
-TIME_RESPONSE=$(curl -s -o /dev/null -w "%{time_total}" http://localhost:8080/ping)
+TIME_RESPONSE=$(curl -s -o /dev/null -w "%{time_total}" http://localhost:8080/api/ping)
 echo "   Response time: ${TIME_RESPONSE}s"
 
 if (( $(echo "$TIME_RESPONSE < 0.1" | bc -l) )); then

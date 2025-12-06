@@ -25,7 +25,7 @@ type PingResponse struct {
 // @Accept       json
 // @Produce      json
 // @Success      200  {object}  PingResponse
-// @Router       /ping [get]
+// @Router       /api/ping [get]
 func PingHandler(c *fiber.Ctx) error {
 	log.Debug("ping endpoint called", "ip", c.IP(), "user_agent", c.Get("User-Agent"))
 
@@ -47,7 +47,7 @@ func PingHandler(c *fiber.Ctx) error {
 // @Tags         health
 // @Produce      plain
 // @Success      200  {string}  string  "pong"
-// @Router       /ping/simple [get]
+// @Router       /api/ping/simple [get]
 func PingHandlerSimple(c *fiber.Ctx) error {
 	log.Debug("simple ping endpoint called", "ip", c.IP())
 	return c.Status(fiber.StatusOK).SendString("pong")

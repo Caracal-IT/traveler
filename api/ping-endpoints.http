@@ -11,7 +11,7 @@
 
 ### 1. Ping - JSON Health Check
 # Returns detailed health status with metadata
-GET {{baseUrl}}/ping
+GET {{baseUrl}}/api/ping
 Accept: application/json
 
 > {%
@@ -37,7 +37,7 @@ Accept: application/json
 
 ### 2. Ping Simple - Plain Text Health Check
 # Returns simple "pong" response for load balancers
-GET {{baseUrl}}/ping/simple
+GET {{baseUrl}}/api/ping/simple
 Accept: text/plain
 
 > {%
@@ -74,14 +74,14 @@ Accept: text/plain
 
 ### 4. Ping with User-Agent Header
 # Test with custom headers
-GET {{baseUrl}}/ping
+GET {{baseUrl}}/api/ping
 Accept: application/json
 User-Agent: Traveler-Test-Client/1.0
 
 ###
 
 ### 5. Ping Simple with Custom Headers
-GET {{baseUrl}}/ping/simple
+GET {{baseUrl}}/api/ping/simple
 Accept: text/plain
 User-Agent: LoadBalancer/1.0
 X-Request-ID: test-12345
@@ -91,13 +91,13 @@ X-Request-ID: test-12345
 ###############################################################################
 
 ### 6. AWS ALB Health Check Simulation
-GET {{baseUrl}}/ping/simple
+GET {{baseUrl}}/api/ping/simple
 User-Agent: ELB-HealthChecker/2.0
 
 ###
 
 ### 7. Kubernetes Health Check Simulation
-GET {{baseUrl}}/ping/simple
+GET {{baseUrl}}/api/ping/simple
 User-Agent: kube-probe/1.28
 
 ###############################################################################
@@ -105,45 +105,45 @@ User-Agent: kube-probe/1.28
 ###############################################################################
 
 ### 8. Ping with Wrong Method (should return 405)
-POST {{baseUrl}}/ping
+POST {{baseUrl}}/api/ping
 Content-Type: application/json
 
 ###
 
 ### 9. Non-existent Endpoint (should return 404)
-GET {{baseUrl}}/nonexistent
+GET {{baseUrl}}/api/nonexistent
 
 ###############################################################################
 ### Multiple Requests for Latency Testing
 ###############################################################################
 
 ### 10. Ping Request 1
-GET {{baseUrl}}/ping
+GET {{baseUrl}}/api/ping
 
 ###
 
 ### 11. Ping Request 2
-GET {{baseUrl}}/ping
+GET {{baseUrl}}/api/ping
 
 ###
 
 ### 12. Ping Request 3
-GET {{baseUrl}}/ping
+GET {{baseUrl}}/api/ping
 
 ###
 
 ### 13. Simple Ping Request 1
-GET {{baseUrl}}/ping/simple
+GET {{baseUrl}}/api/ping/simple
 
 ###
 
 ### 14. Simple Ping Request 2
-GET {{baseUrl}}/ping/simple
+GET {{baseUrl}}/api/ping/simple
 
 ###
 
 ### 15. Simple Ping Request 3
-GET {{baseUrl}}/ping/simple
+GET {{baseUrl}}/api/ping/simple
 
 ###############################################################################
 ### Notes

@@ -13,12 +13,12 @@ import (
 )
 
 func TestPingHandler(t *testing.T) {
-	// Setup
-	app := fiber.New()
-	app.Get("/ping", PingHandler)
+    // Setup
+    app := fiber.New()
+    app.Get("/api/ping", PingHandler)
 
 	t.Run("returns 200 status code", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/ping", nil)
+  req := httptest.NewRequest("GET", "/api/ping", nil)
 		resp, err := app.Test(req)
 		require.NoError(t, err)
 		defer func(Body io.ReadCloser) {
@@ -32,7 +32,7 @@ func TestPingHandler(t *testing.T) {
 	})
 
 	t.Run("returns JSON content type", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/ping", nil)
+  req := httptest.NewRequest("GET", "/api/ping", nil)
 		resp, err := app.Test(req)
 		require.NoError(t, err)
 		defer func(Body io.ReadCloser) {
@@ -47,7 +47,7 @@ func TestPingHandler(t *testing.T) {
 	})
 
 	t.Run("returns valid PingResponse structure", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/ping", nil)
+  req := httptest.NewRequest("GET", "/api/ping", nil)
 		resp, err := app.Test(req)
 		require.NoError(t, err)
 		defer func(Body io.ReadCloser) {
@@ -72,7 +72,7 @@ func TestPingHandler(t *testing.T) {
 	t.Run("timestamp is recent", func(t *testing.T) {
 		before := time.Now().UTC()
 
-		req := httptest.NewRequest("GET", "/ping", nil)
+  req := httptest.NewRequest("GET", "/api/ping", nil)
 		resp, err := app.Test(req)
 		require.NoError(t, err)
 		defer func(Body io.ReadCloser) {
@@ -102,7 +102,7 @@ func TestPingHandler(t *testing.T) {
 
 		for i := 0; i < numRequests; i++ {
 			go func() {
-				req := httptest.NewRequest("GET", "/ping", nil)
+    req := httptest.NewRequest("GET", "/api/ping", nil)
 				resp, err := app.Test(req)
 				if err != nil {
 					results <- err
@@ -132,10 +132,10 @@ func TestPingHandler(t *testing.T) {
 func TestPingHandlerSimple(t *testing.T) {
 	// Setup
 	app := fiber.New()
-	app.Get("/ping/simple", PingHandlerSimple)
+ app.Get("/api/ping/simple", PingHandlerSimple)
 
 	t.Run("returns 200 status code", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/ping/simple", nil)
+  req := httptest.NewRequest("GET", "/api/ping/simple", nil)
 		resp, err := app.Test(req)
 		require.NoError(t, err)
 		defer func(Body io.ReadCloser) {
@@ -149,7 +149,7 @@ func TestPingHandlerSimple(t *testing.T) {
 	})
 
 	t.Run("returns plain text", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/ping/simple", nil)
+  req := httptest.NewRequest("GET", "/api/ping/simple", nil)
 		resp, err := app.Test(req)
 		require.NoError(t, err)
 		defer func(Body io.ReadCloser) {
@@ -166,7 +166,7 @@ func TestPingHandlerSimple(t *testing.T) {
 	})
 
 	t.Run("content type is text/plain", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/ping/simple", nil)
+  req := httptest.NewRequest("GET", "/api/ping/simple", nil)
 		resp, err := app.Test(req)
 		require.NoError(t, err)
 		defer func(Body io.ReadCloser) {
@@ -221,27 +221,27 @@ func TestPingResponse_Structure(t *testing.T) {
 
 // Benchmark tests
 func BenchmarkPingHandler(b *testing.B) {
-	app := fiber.New()
-	app.Get("/ping", PingHandler)
+    app := fiber.New()
+    app.Get("/api/ping", PingHandler)
 
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		req := httptest.NewRequest("GET", "/ping", nil)
-		resp, _ := app.Test(req, -1)
-		err := resp.Body.Close()
-		if err != nil {
-			return
-		}
-	}
+    b.ResetTimer()
+    for i := 0; i < b.N; i++ {
+        req := httptest.NewRequest("GET", "/api/ping", nil)
+        resp, _ := app.Test(req, -1)
+        err := resp.Body.Close()
+        if err != nil {
+            return
+        }
+    }
 }
 
 func BenchmarkPingHandlerSimple(b *testing.B) {
 	app := fiber.New()
-	app.Get("/ping/simple", PingHandlerSimple)
+ app.Get("/api/ping/simple", PingHandlerSimple)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		req := httptest.NewRequest("GET", "/ping/simple", nil)
+  req := httptest.NewRequest("GET", "/api/ping/simple", nil)
 		resp, _ := app.Test(req, -1)
 		err := resp.Body.Close()
 		if err != nil {
@@ -251,30 +251,30 @@ func BenchmarkPingHandlerSimple(b *testing.B) {
 }
 
 func BenchmarkPingHandler_Parallel(b *testing.B) {
-	app := fiber.New()
-	app.Get("/ping", PingHandler)
+    app := fiber.New()
+    app.Get("/api/ping", PingHandler)
 
-	b.ResetTimer()
-	b.RunParallel(func(pb *testing.PB) {
-		for pb.Next() {
-			req := httptest.NewRequest("GET", "/ping", nil)
-			resp, _ := app.Test(req, -1)
-			err := resp.Body.Close()
-			if err != nil {
-				return
-			}
-		}
-	})
+    b.ResetTimer()
+    b.RunParallel(func(pb *testing.PB) {
+        for pb.Next() {
+            req := httptest.NewRequest("GET", "/api/ping", nil)
+            resp, _ := app.Test(req, -1)
+            err := resp.Body.Close()
+            if err != nil {
+                return
+            }
+        }
+    })
 }
 
 func BenchmarkPingHandlerSimple_Parallel(b *testing.B) {
 	app := fiber.New()
-	app.Get("/ping/simple", PingHandlerSimple)
+ app.Get("/api/ping/simple", PingHandlerSimple)
 
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
-			req := httptest.NewRequest("GET", "/ping/simple", nil)
+   req := httptest.NewRequest("GET", "/api/ping/simple", nil)
 			resp, _ := app.Test(req, -1)
 			err := resp.Body.Close()
 			if err != nil {
