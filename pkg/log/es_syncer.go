@@ -25,6 +25,11 @@ type elasticsearchSyncer struct {
 
 	flushEvery time.Duration
 	maxActions int
+
+	// error logging rate limit
+	errEvery    time.Duration
+	lastErrTime time.Time
+	errMu       sync.Mutex
 }
 
 func newElasticsearchSyncer(baseURL, index string) zapcore.WriteSyncer {
@@ -34,6 +39,7 @@ func newElasticsearchSyncer(baseURL, index string) zapcore.WriteSyncer {
 		client:     &http.Client{Timeout: 5 * time.Second},
 		flushEvery: 1 * time.Second,
 		maxActions: 200, // pairs of lines (index + doc) counts as 1 action
+		errEvery:   10 * time.Second,
 	}
 	// start periodic flusher
 	go es.flushLoop()
@@ -112,19 +118,47 @@ func (e *elasticsearchSyncer) post(body *bytes.Buffer) error {
 	}
 	req, err := http.NewRequest(http.MethodPost, e.bulkURL, body)
 	if err != nil {
+		e.logErrRateLimited("elasticsearch bulk request build failed", map[string]interface{}{"error": err.Error()})
 		return err
 	}
 	req.Header.Set("Content-Type", "application/x-ndjson")
 	resp, err := e.client.Do(req)
 	if err != nil {
+		e.logErrRateLimited("elasticsearch bulk post failed", map[string]interface{}{"error": err.Error()})
 		return err
 	}
 	defer resp.Body.Close()
 	// Consider non-2xx a failure but do not propagate to crash; return error
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		// read a small snippet for context
+		var snippet bytes.Buffer
+		io.CopyN(&snippet, resp.Body, 512)
+		e.logErrRateLimited("elasticsearch bulk post failed", map[string]interface{}{
+			"status":   resp.StatusCode,
+			"response": snippet.String(),
+		})
 		io.Copy(io.Discard, resp.Body)
 		return fmt.Errorf("elasticsearch bulk post failed: status %d", resp.StatusCode)
 	}
 	io.Copy(io.Discard, resp.Body)
 	return nil
+}
+
+// logErrRateLimited logs a warning about ES shipping failures at most once per e.errEvery.
+func (e *elasticsearchSyncer) logErrRateLimited(msg string, fields map[string]interface{}) {
+	e.errMu.Lock()
+	shouldLog := time.Since(e.lastErrTime) >= e.errEvery
+	if shouldLog {
+		e.lastErrTime = time.Now()
+	}
+	e.errMu.Unlock()
+	if !shouldLog {
+		return
+	}
+	// Use the package logger without creating import cycles (we are in package log).
+	kv := make([]interface{}, 0, len(fields)*2)
+	for k, v := range fields {
+		kv = append(kv, k, v)
+	}
+	Sugar().Warnw(msg, kv...)
 }

@@ -7,8 +7,8 @@ log:
   file: ""  # logs go to stdout; container also mounts /root/logs if needed
   elasticsearch:
     enabled: true
-    url: http://elasticsearch:9200
-    index: traveler-logs
+    url: http://elk-elasticsearch:9200
+    index: docker-traveler-logs
 
 auth:
   # IMPORTANT: The token's `iss` (issuer) is based on where the token was obtained.

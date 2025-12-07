@@ -31,7 +31,7 @@ func Init(level string, filePath string, esCfg *config.ElasticLogConfig) error {
 	}
 
 	encCfg := zapcore.EncoderConfig{
-		TimeKey:        "ts",
+		TimeKey:        "@timestamp",
 		LevelKey:       "level",
 		NameKey:        "logger",
 		CallerKey:      "caller",
