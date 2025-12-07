@@ -5,6 +5,10 @@ server:
 log:
   level: info  # Options: debug, info, warn, error
   file: ""     # Optional: logs/app.log (empty = stdout only)
+  elasticsearch:
+    enabled: false
+    url: http://localhost:9200
+    index: traveler-logs
 
 auth:
   # Default local Keycloak (from docker compose)

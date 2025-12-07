@@ -19,8 +19,8 @@ func main() {
 	// Load configuration from file
 	cfg := config.LoadOrDefault("configs/config.yaml")
 
-	// Initialize logger with configured level and file path
-	if err := log.Init(cfg.Log.Level, cfg.Log.File); err != nil {
+	// Initialize logger with configured level, file path, and optional Elasticsearch sink
+	if err := log.Init(cfg.Log.Level, cfg.Log.File, &cfg.Log.Elasticsearch); err != nil {
 		log.Fatal("failed to init logger", "error", err)
 	}
 	defer func() { _ = log.Sync() }()

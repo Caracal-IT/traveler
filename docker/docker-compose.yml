@@ -15,6 +15,7 @@ services:
       - ../logs:/root/logs
     depends_on:
       - keycloak
+      - elasticsearch
     restart: unless-stopped
 
   keycloak:

@@ -20,8 +20,18 @@ type ServerConfig struct {
 
 // LogConfig holds logging configuration.
 type LogConfig struct {
-	Level string `mapstructure:"level"`
-	File  string `mapstructure:"file"` // Optional: if empty, logs only to stdout
+	Level         string           `mapstructure:"level"`
+	File          string           `mapstructure:"file"` // Optional: if empty, logs only to stdout
+	Elasticsearch ElasticLogConfig `mapstructure:"elasticsearch"`
+}
+
+// ElasticLogConfig controls optional shipping of logs to Elasticsearch.
+type ElasticLogConfig struct {
+	Enabled bool   `mapstructure:"enabled"`
+	URL     string `mapstructure:"url"`   // e.g. http://localhost:9200
+	Index   string `mapstructure:"index"` // e.g. traveler-logs
+	Buffer  int    `mapstructure:"buffer"`
+	Workers int    `mapstructure:"workers"`
 }
 
 // AuthConfig holds authentication settings (Keycloak/OpenID Connect).
@@ -45,6 +55,12 @@ func Load(configPath string) (*Config, error) {
 	v.SetDefault("server.port", 8080)
 	v.SetDefault("log.level", "info")
 	v.SetDefault("log.file", "") // Empty means stdout only
+	// Elastic logging defaults (disabled)
+	v.SetDefault("log.elasticsearch.enabled", false)
+	v.SetDefault("log.elasticsearch.url", "http://localhost:9200")
+	v.SetDefault("log.elasticsearch.index", "traveler-logs")
+	v.SetDefault("log.elasticsearch.buffer", 1024)
+	v.SetDefault("log.elasticsearch.workers", 1)
 	// Reasonable dev defaults for local Keycloak in docker
 	v.SetDefault("auth.issuer", "http://localhost:8081/realms/traveler-dev")
 	v.SetDefault("auth.audience", "traveler-app")
