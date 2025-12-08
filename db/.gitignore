@@ -1,0 +1,4 @@
+# Ignore generated SQLite database files in this folder
+*.db
+*.sqlite
+*.sqlite3
