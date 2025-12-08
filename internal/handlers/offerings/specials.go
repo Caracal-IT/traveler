@@ -15,6 +15,7 @@ func requestContext(c *fiber.Ctx) context.Context {
 	if uc := c.UserContext(); uc != nil {
 		return uc
 	}
+
 	return context.Background()
 }
 
