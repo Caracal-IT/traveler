@@ -1,4 +1,4 @@
-### Traveler API - Offerings: Specials
+### Traveler API - Login
 
 # Variables are sourced from api/http-client.env.json environments.
 # Select an environment (e.g., dev) in your IDE HTTP client before running.
@@ -22,7 +22,7 @@ grant_type=password&client_id={{clientId}}&username={{username}}&password={{pass
   client.global.set("access_token", token);
 %}
 
-###
+### Traveler API - Offerings: Specials
 
 ###############################################################################
 ### 2) Call Protected Specials Endpoint
@@ -42,7 +42,7 @@ Accept: application/json
   });
 %}
 
-###
+### Traveler API - Offerings: Specials
 
 ###############################################################################
 ### 3) Negative test: Without Token (should be 401)
