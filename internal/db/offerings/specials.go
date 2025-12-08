@@ -21,11 +21,13 @@ func GetActiveSpecials(ctx context.Context, db *sql.DB) ([]Special, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer func(rows *sql.Rows) {
 		_ = rows.Close()
 	}(rows)
 
 	var out []Special
+
 	for rows.Next() {
 		var s Special
 		if err := rows.Scan(&s.ID, &s.Name, &s.Price, &s.Currency); err != nil {
@@ -33,8 +35,10 @@ func GetActiveSpecials(ctx context.Context, db *sql.DB) ([]Special, error) {
 		}
 		out = append(out, s)
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+
 	return out, nil
 }
