@@ -11,12 +11,12 @@ import (
 
 // RegisterRoutes registers all application routes with the Fiber app.
 func RegisterRoutes(app *fiber.App, cfg *config.Config, db *sql.DB) {
-	// Health check endpoints
+	app.Get("/", RootHandler)
+
 	api := app.Group("/api")
 	api.Get("/ping", PingHandler)
 	api.Get("/ping/simple", PingHandlerSimple)
 
-	// Authenticated routes
 	authMW := auth.JWTMiddleware(cfg)
 	offeringsGroup := api.Group("/offerings", authMW)
 	offeringsGroup.Get("/specials", offerings.SpecialsHandler(db))
