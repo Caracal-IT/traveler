@@ -26,6 +26,9 @@ COPY --from=builder /app/traveler .
 # Copy configs if they exist
 COPY --from=builder /app/configs ./configs
 
+# Copy database assets (schema) for runtime initialization
+COPY --from=builder /app/db ./db
+
 EXPOSE 8080
 
 CMD ["./traveler"]

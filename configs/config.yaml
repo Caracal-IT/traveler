@@ -15,3 +15,6 @@ auth:
   issuer: http://localhost:8081/realms/traveler-dev
   audience: traveler-app
 
+database:
+  path: db/traveler.db
+

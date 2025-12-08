@@ -20,3 +20,6 @@ auth:
   # name `keycloak:8080`. Override the JWKS URL so the app can fetch signing keys
   # from the container network while still validating the public issuer above.
   jwks_url: http://keycloak:8080/realms/traveler-dev/protocol/openid-connect/certs
+
+database:
+  path: db/traveler.db

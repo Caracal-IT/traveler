@@ -8,9 +8,10 @@ import (
 
 // Config holds application configuration.
 type Config struct {
-	Server ServerConfig `mapstructure:"server"`
-	Log    LogConfig    `mapstructure:"log"`
-	Auth   AuthConfig   `mapstructure:"auth"`
+	Server   ServerConfig   `mapstructure:"server"`
+	Log      LogConfig      `mapstructure:"log"`
+	Auth     AuthConfig     `mapstructure:"auth"`
+	Database DatabaseConfig `mapstructure:"database"`
 }
 
 // ServerConfig holds server-specific configuration.
@@ -45,6 +46,12 @@ type AuthConfig struct {
 	JWKSURL string `mapstructure:"jwks_url"`
 }
 
+// DatabaseConfig holds local SQLite database settings.
+type DatabaseConfig struct {
+	// Path to the SQLite database file, e.g. "db/traveler.db"
+	Path string `mapstructure:"path"`
+}
+
 // Load reads configuration from a YAML file.
 func Load(configPath string) (*Config, error) {
 	v := viper.New()
@@ -64,6 +71,8 @@ func Load(configPath string) (*Config, error) {
 	// Reasonable dev defaults for local Keycloak in docker
 	v.SetDefault("auth.issuer", "http://localhost:8081/realms/traveler-dev")
 	v.SetDefault("auth.audience", "traveler-app")
+	// Database defaults
+	v.SetDefault("database.path", "db/traveler.db")
 
 	if err := v.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("failed to read config: %w", err)

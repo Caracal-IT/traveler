@@ -15,4 +15,5 @@ Recommended usage
 
 Notes
 - By default, the database file will be created at db/traveler.db.
-- The actual application wiring to use SQLite is out of scope of this change; this only provides the local DB assets and make targets.
+- The application now initializes the SQLite database automatically on startup using the schema at db/schema.sql. If the DB file doesn't exist, it will be created, and the schema (including the specials seeds) will be applied idempotently.
+- You can still manage the DB manually with the make targets above during development.

@@ -5,3 +5,6 @@ server:
 log:
   level: debug
 
+database:
+  path: db/traveler.db
+
