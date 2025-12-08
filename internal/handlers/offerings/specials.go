@@ -25,8 +25,10 @@ func SpecialsHandler(db *sql.DB) fiber.Handler {
 		ctx := requestContext(c)
 
 		items, err := repo.GetActiveSpecials(ctx, db)
+
 		if err != nil {
 			log.Error("failed to list specials", "error", err)
+
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "failed to fetch specials",
 			})
