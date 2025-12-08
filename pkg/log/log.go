@@ -4,9 +4,10 @@ import (
 	"os"
 	"strings"
 
+	"traveler/pkg/config"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"traveler/pkg/config"
 )
 
 var sug *zap.SugaredLogger
@@ -63,7 +64,7 @@ func Init(level string, filePath string, esCfg *config.ElasticLogConfig) error {
 		core = zapcore.NewTee(core, esCore)
 	}
 
-	zl := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(0))
+	zl := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
 	sug = zl.Sugar()
 	return nil
 }
