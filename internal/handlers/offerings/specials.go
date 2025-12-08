@@ -1,19 +1,34 @@
 package offerings
 
 import (
+	"context"
+	"database/sql"
+
 	"github.com/gofiber/fiber/v2"
+
+	repo "traveler/internal/db/offerings"
+	"traveler/pkg/log"
 )
 
-// SpecialsHandler serves the authenticated specials endpoint.
+// SpecialsHandler returns a Fiber handler that serves the authenticated specials endpoint.
 // Route: GET /api/offerings/specials
-func SpecialsHandler(c *fiber.Ctx) error {
-	// Example payload; in real use this would be fetched from a service/db
-	data := fiber.Map{
-		"items": []fiber.Map{
-			{"id": "sp-1001", "name": "Winter Escape", "price": 799.0, "currency": "USD"},
-			{"id": "sp-1002", "name": "City Break Deluxe", "price": 499.0, "currency": "USD"},
-		},
-	}
+func SpecialsHandler(db *sql.DB) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		ctx := c.UserContext()
+		if ctx == nil {
+			ctx = context.Background()
+		}
 
-	return c.JSON(data)
+		items, err := repo.GetActiveSpecials(ctx, db)
+		if err != nil {
+			log.Error("failed to list specials", "error", err)
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "failed to fetch specials",
+			})
+		}
+
+		// Keep response shape stable: { "items": [ ... ] }
+		// Directly marshal the repo.Special values.
+		return c.JSON(fiber.Map{"items": items})
+	}
 }

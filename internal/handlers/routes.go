@@ -1,7 +1,8 @@
 package handlers
 
 import (
-	offerings "traveler/internal/handlers/offerings"
+	"database/sql"
+	"traveler/internal/handlers/offerings"
 	"traveler/pkg/auth"
 	"traveler/pkg/config"
 
@@ -9,7 +10,7 @@ import (
 )
 
 // RegisterRoutes registers all application routes with the Fiber app.
-func RegisterRoutes(app *fiber.App, cfg *config.Config) {
+func RegisterRoutes(app *fiber.App, cfg *config.Config, db *sql.DB) {
 	// Health check endpoints
 	api := app.Group("/api")
 	api.Get("/ping", PingHandler)
@@ -18,5 +19,5 @@ func RegisterRoutes(app *fiber.App, cfg *config.Config) {
 	// Authenticated routes
 	authMW := auth.JWTMiddleware(cfg)
 	offeringsGroup := api.Group("/offerings", authMW)
-	offeringsGroup.Get("/specials", offerings.SpecialsHandler)
+	offeringsGroup.Get("/specials", offerings.SpecialsHandler(db))
 }
