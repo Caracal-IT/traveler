@@ -1,0 +1,96 @@
+{
+  "realm": "traveler-dev",
+  "enabled": true,
+  "sslRequired": "none",
+  "attributes": {
+    "frontendUrl": "http://localhost:8081"
+  },
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "internationalizationEnabled": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "api-user",
+        "description": "Basic API user role for traveler-dev"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "traveler-app",
+      "name": "Traveler App (local)",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience-mapper",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "traveler-app",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "caracal",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "caracal@example.com",
+      "firstName": "Cara",
+      "lastName": "Cal",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin#1!",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "realm-management": [
+          "realm-admin"
+        ]
+      }
+    },
+    {
+      "username": "api-user",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "api-user@example.com",
+      "firstName": "Api",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "ApiUser#1!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "api-user"
+      ]
+    }
+  ]
+}
