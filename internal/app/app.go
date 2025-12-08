@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -13,16 +14,25 @@ import (
 	"traveler/pkg/log"
 )
 
-// Run starts the application. It runs a Fiber HTTP server until context is cancelled.
-func Run(ctx context.Context, cfg *config.Config) error {
-	// Initialize local SQLite database and apply schema
+// initDatabase initializes the SQLite database and applies the schema.
+func initDatabase(ctx context.Context, cfg *config.Config) (*sql.DB, error) {
 	dbPath := cfg.Database.Path
 	schemaPath := "db/schema.sql"
 	sqlDb, err := appdb.Init(ctx, dbPath, schemaPath)
 	if err != nil {
-		return fmt.Errorf("failed to initialize database: %w", err)
+		return nil, fmt.Errorf("failed to initialize database: %w", err)
 	}
 	log.Info("database initialized", "db", dbPath)
+	return sqlDb, nil
+}
+
+// Run starts the application. It runs a Fiber HTTP server until context is cancelled.
+func Run(ctx context.Context, cfg *config.Config) error {
+	// Initialize local SQLite database and apply schema
+	sqlDb, err := initDatabase(ctx, cfg)
+	if err != nil {
+		return err
+	}
 
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
@@ -39,6 +49,7 @@ func Run(ctx context.Context, cfg *config.Config) error {
 
 	// run server in the background
 	errCh := make(chan error, 1)
+
 	go func() {
 		addr := fmt.Sprintf(":%d", cfg.Server.Port)
 		log.Info("starting server", "address", addr)

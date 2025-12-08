@@ -16,7 +16,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	// Load configuration from file
+	// Load configuration from a file
 	cfg := config.LoadOrDefault("configs/config.yaml")
 
 	// Initialize logger with configured level, file path, and optional Elasticsearch sink
@@ -36,6 +36,6 @@ func main() {
 		log.Fatal("application error", "error", err)
 	}
 
-	// allow logger flush if any
+	// allow the logger to flush if any
 	time.Sleep(50 * time.Millisecond)
 }

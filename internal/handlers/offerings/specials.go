@@ -10,14 +10,19 @@ import (
 	"traveler/pkg/log"
 )
 
+// requestContext returns the request's context or a safe background context if nil.
+func requestContext(c *fiber.Ctx) context.Context {
+	if uc := c.UserContext(); uc != nil {
+		return uc
+	}
+	return context.Background()
+}
+
 // SpecialsHandler returns a Fiber handler that serves the authenticated specials endpoint.
 // Route: GET /api/offerings/specials
 func SpecialsHandler(db *sql.DB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx := c.UserContext()
-		if ctx == nil {
-			ctx = context.Background()
-		}
+		ctx := requestContext(c)
 
 		items, err := repo.GetActiveSpecials(ctx, db)
 		if err != nil {
