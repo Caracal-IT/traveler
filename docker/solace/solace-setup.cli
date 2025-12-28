@@ -1,0 +1,78 @@
+! Configure Solace
+
+enable
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!                                  Retain Messages                                    !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+configure
+mqtt
+retain
+max-memory 1024
+end
+
+configure
+message-vpn default
+mqtt
+retain
+create cache default_mqtt_cache
+message-lifetime 300
+no shutdown
+end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!                                 Setup Root CA                                       !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!configure
+!ssl
+!server-certificate traveler-server.pem
+!create domain-certificate-authority traveler-server-ca
+!certificate file traveler-server-ca.pem
+!end
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!                         Enable Client Authentication                                !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Add Certificate Authentication
+!configure
+!message-vpn default
+
+!! Enable client certificate authentication
+!authentication client-certificate
+!no shutdown
+!end
+
+!! Disable Basic Authentication
+!configure
+!message-vpn default
+!authentication basic
+!shutdown
+!end
+
+!! Enable Matching Rules
+!configure
+!message-vpn default
+!authentication
+!client-certificate
+!matching-rules
+!no shutdown
+!end
+
+!! Add Client CA
+!configure
+!authentication
+!create client-certificate-authority traveler-client-ca
+!certificate file traveler-client-ca.pem
+!end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!                            Client Certificate Rules                                 !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Enable Client default-client-dev
+configure
+message-vpn default
+authentication
+client-certificate
+
+
