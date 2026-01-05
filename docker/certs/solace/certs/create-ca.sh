@@ -1,13 +1,14 @@
-CERT_NAME_CA="/dist/$1-ca"
-CONFIG_TEMPLATE="/scripts/client/cert.cnf" #Ensure this is securely mapped
-# Write temp/working config to a writable location inside the container
-CONFIG="/tmp/new_cert.cnf"
+DEST="$2"
+CATEGORY="$1"
+CONFIG_TEMPLATE="/scripts/certs/cert.cnf" #Ensure this is securely mapped
+CONFIG="/tmp/new_cert.cnf" # Write temp/working config to a writable location inside the container
+CERT_NAME_CA="/dist/$DEST-ca"
 
 cp "${CONFIG_TEMPLATE}" "${CONFIG}"
 
 # Ensure the CN is properly set in the modified config
 sed -i '/CN *=/d' "$CONFIG" # Remove existing CN lines
-echo -e "\nCN = $1" >> "$CONFIG" # Append new CN line
+echo -e "\nCN = $DEST" >> "$CONFIG" # Append new CN line
 
 # Exit on error
 set -e
@@ -40,5 +41,5 @@ echo "-------------------------------------------------------------"
 echo " Copy CA certificate and key to client dist folder"
 echo "-------------------------------------------------------------"
 
-mkdir -p "/dist/clients/$1/"
-mv "${CERT_NAME_CA}".* "/dist/clients/$1/"
+mkdir -p "/dist/$CATEGORY/$DEST/ca"
+mv "${CERT_NAME_CA}".* "/dist/$CATEGORY/$DEST/ca"

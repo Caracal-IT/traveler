@@ -1,6 +1,6 @@
 name: caracal-certs
 services:
-  create-solace-client-ca-certs:
+  create-server-ca-cert:
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,10 +10,11 @@ services:
     volumes:
       - .:/scripts
       - ./release:/dist
-    command: /scripts/client/create-ca.sh caracal-client
+    command: /scripts/certs/create-ca.sh server caracal-server
     env_file:
       - ./secrets.env
-  create-solace-client-certs-default:
+
+  create-server-certs:
     build:
       context: .
       dockerfile: Dockerfile
@@ -23,6 +24,36 @@ services:
     volumes:
       - .:/scripts
       - ./release:/dist
-    command: /scripts/client/create-clients.sh
+    command: /scripts/certs/create-server-cert.sh
     env_file:
       - ./secrets.env
+
+####################################################################
+  create-client-ca-cert:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: root
+    entrypoint: sh
+    working_dir: /export
+    volumes:
+      - .:/scripts
+      - ./release:/dist
+    command: /scripts/certs/create-ca.sh client caracal-client
+    env_file:
+      - ./secrets.env
+
+  create-client-default-cert:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: root
+    entrypoint: sh
+    working_dir: /export
+    volumes:
+      - .:/scripts
+      - ./release:/dist
+    command: /scripts/certs/create-client-certs.sh
+    env_file:
+      - ./secrets.env
+################################################################

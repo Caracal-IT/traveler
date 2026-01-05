@@ -1,15 +1,16 @@
-CERT_NAME="/dist/$2"
-CERT_NAME_CA="/dist/clients/$1/$1-ca"
+DEST="/dist/$1/$2/$3/"
+CATEGORY="$1"
+CERT_NAME="/dist/$3"
+CERT_NAME_CA="/dist/$CATEGORY/$2/ca/$2-ca"
 
-CONFIG_TEMPLATE="/scripts/client/cert.cnf" #Ensure this is securely mapped
-# Write temp/working config to a writable location inside the container
-CONFIG="/tmp/new_cert.cnf"
+CONFIG_TEMPLATE="/scripts/certs/cert.cnf" #Ensure this is securely mapped
+CONFIG="/tmp/new_cert.cnf" # Write temp/working config to a writable location inside the container
 
 cp "${CONFIG_TEMPLATE}" "${CONFIG}"
 
 # Ensure the CN is properly set in the modified config
 sed -i '/CN *=/d' "$CONFIG" # Remove existing CN lines
-echo -e "\nCN = $2" >> "$CONFIG" # Append new CN line
+echo -e "\nCN = $3" >> "$CONFIG" # Append new CN line
 
 # Exit on error
 set -e
@@ -84,13 +85,13 @@ echo "-------------------------------------------------------------"
 echo " Copy certificate and key to client dist folder"
 echo "-------------------------------------------------------------"
 
-mkdir -p "/dist/clients/$1/$2"
+mkdir -p "$DEST"
 
-mv "${CERT_NAME}".crt "/dist/clients/$1/$2"
-mv "${CERT_NAME}".key "/dist/clients/$1/$2"
-mv "${CERT_NAME}".pem "/dist/clients/$1/$2"
-mv "${CERT_NAME}".pfx "/dist/clients/$1/$2"
+mv "${CERT_NAME}".crt "$DEST"
+mv "${CERT_NAME}".key "$DEST"
+mv "${CERT_NAME}".pem "$DEST"
+mv "${CERT_NAME}".pfx "$DEST"
 
 # Cleanup only temporary files; be tolerant if they don't exist
 rm -f "${CONFIG}"
-rm -f "${CERT_NAME}.csr" "${CERT_NAME}.rsa"
+rm -f "${CERT_NAME}".*

@@ -27,8 +27,8 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./solace/certs:/var/lib/solace/jail/certs
-      # Mount the single CLI script explicitly to ensure Solace picks it up and to avoid permission/visibility issues
+      #- ./solace/certs:/var/lib/solace/jail/certs
+      - ../../
       - ./solace/solace-setup.cli:/var/lib/solace/jail/cliscripts/solace-setup.cli:ro
     deploy:
       restart_policy:
