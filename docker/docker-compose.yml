@@ -27,8 +27,9 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./docker/certs/solace/release:/var/lib/solace/jail/certs
-      - ./docker/solace:/var/lib/solace/jail/cliscripts
+      - ./solace/certs:/var/lib/solace/jail/certs
+      # Mount the single CLI script explicitly to ensure Solace picks it up and to avoid permission/visibility issues
+      - ./solace/solace-setup.cli:/var/lib/solace/jail/cliscripts/solace-setup.cli:ro
     deploy:
       restart_policy:
         condition: on-failure

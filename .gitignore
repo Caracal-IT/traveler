@@ -38,3 +38,4 @@ Thumbs.db
 /db/traveler.db-wal
 
 /docker/certs/solace/release/
+/docker/solace/certs/
