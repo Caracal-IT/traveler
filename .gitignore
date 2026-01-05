@@ -36,3 +36,5 @@ Thumbs.db
 /docker/keycloak/realm-export/traveler-dev-realm.json
 /db/traveler.db-shm
 /db/traveler.db-wal
+
+/docker/certs/solace/release/

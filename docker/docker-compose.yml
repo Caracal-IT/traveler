@@ -26,6 +26,14 @@ services:
       memlock:
         soft: -1
         hard: -1
+    volumes:
+      - ./docker/certs/solace/release:/var/lib/solace/jail/certs
+      - ./docker/solace:/var/lib/solace/jail/cliscripts
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 1
+    working_dir: /usr/sw
     environment:
       - username_admin_globalaccesslevel=admin
       - username_admin_password=admin

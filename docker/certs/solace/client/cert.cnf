@@ -1,0 +1,42 @@
+[req]
+prompt = no
+distinguished_name = dn
+x509_extensions = v3_req
+req_extensions = v3_req
+
+[reg_distinguished_name]
+countryName = Country Name (2 letter code)
+countryName_default = ZA
+stateOrProvinceName = State or Province Name (full name)
+stateOrProvinceName_default = Western Cape
+localityName = Locality Name (eg, city)
+localityName_default = Cape Town
+organizationName = Organization Name (eg, company)
+organizationName_default = Caracal
+commonName = Common Name (eg, server FQDN or YOUR name)
+commonName_default = Traveler
+commonName_max = 64
+
+[v3_req]
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = 127.0.0.1
+DNS.2 = localhost
+DNS.3 = dev.caracal.dev
+
+[v3_ca]
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid:always,issuer
+basicConstraints = CA:true
+
+[dn]
+C = ZA
+ST = Western Cape
+L = Cape Town
+O = Caracal
+OU = Software
+emailAddress = ettienemare@gmail.com
+

@@ -23,47 +23,47 @@ end
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!                                 Setup Root CA                                       !!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!configure
-!ssl
-!server-certificate traveler-server.pem
-!create domain-certificate-authority traveler-server-ca
-!certificate file traveler-server-ca.pem
-!end
+configure
+ssl
+server-certificate caracal-server.pem
+create domain-certificate-authority caracal-server-ca
+certificate file caracal-server-ca.pem
+end
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!                         Enable Client Authentication                                !!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!! Add Certificate Authentication
-!configure
-!message-vpn default
+! Add Certificate Authentication
+configure
+message-vpn default
 
-!! Enable client certificate authentication
-!authentication client-certificate
-!no shutdown
-!end
+! Enable client certificate authentication
+authentication client-certificate
+no shutdown
+end
 
-!! Disable Basic Authentication
-!configure
-!message-vpn default
-!authentication basic
-!shutdown
-!end
+! Disable Basic Authentication
+configure
+message-vpn default
+authentication basic
+shutdown
+end
 
-!! Enable Matching Rules
-!configure
-!message-vpn default
-!authentication
-!client-certificate
-!matching-rules
-!no shutdown
-!end
+! Enable Matching Rules
+configure
+message-vpn default
+authentication
+client-certificate
+matching-rules
+no shutdown
+end
 
-!! Add Client CA
-!configure
-!authentication
-!create client-certificate-authority traveler-client-ca
-!certificate file traveler-client-ca.pem
-!end
+! Add Client CA
+configure
+authentication
+create client-certificate-authority caracal-client-ca
+certificate file caracal-client-ca.pem
+end
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -74,5 +74,53 @@ configure
 message-vpn default
 authentication
 client-certificate
+matching-rules
+create rule default-client-dev
+no shutdown
+create condition common-name matches-expression default-client-dev
+end
+
+! Create default-client-dev user with default ACL
+configure
+create client-username default-client-dev message-vpn default
+no shutdown
+end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! Enable Client default-client-iot
+configure
+message-vpn default
+authentication
+client-certificate
+matching-rules
+create rule default-client-iot
+no shutdown
+create condition common-name matches-expression default-client-iot
+end
+
+! Create default-client-iot user with default ACL
+configure
+create client-username default-client-iot message-vpn default
+no shutdown
+end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+! Enable Client default-mqtt-explorer
+configure
+message-vpn default
+authentication
+client-certificate
+matching-rules
+create rule default-client-explorer
+no shutdown
+create condition common-name matches-expression default-client-explorer
+end
+
+! Create default-client-explorer user with default ACL
+configure
+create client-username default-client-explorer message-vpn default
+no shutdown
+end
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
