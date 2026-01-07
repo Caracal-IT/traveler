@@ -6,6 +6,8 @@ import (
 	"sync"
 )
 
+// go run --race race-condition.go
+
 func main() {
 	fmt.Println("Start Race condition")
 	printDetails()
@@ -18,10 +20,13 @@ func main() {
 	for i := 0; i < gs; i++ {
 		go func() {
 			v := counter
+			runtime.Gosched() // Yield
 			v++
 			counter = v
 			wg.Done()
 		}()
+
+		fmt.Println("Go Routines: ", runtime.NumGoroutine())
 	}
 
 	wg.Wait()
