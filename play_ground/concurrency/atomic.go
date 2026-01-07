@@ -22,6 +22,7 @@ func main() {
 		go func() {
 			atomic.AddInt64(&counter, 1)
 			runtime.Gosched() // Yield
+			fmt.Println("Counter : ", atomic.LoadInt64(&counter))
 			wg.Done()
 		}()
 	}
