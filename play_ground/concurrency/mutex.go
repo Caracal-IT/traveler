@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-// go run --race race-condition.go
+// RWMutex
 
 func main() {
 	fmt.Println("Start Race condition")
@@ -16,12 +16,16 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(gs)
 
+	var mu sync.Mutex
+
 	for i := 0; i < gs; i++ {
 		go func() {
+			mu.Lock()
 			v := counter
 			runtime.Gosched() // Yield
 			v++
 			counter = v
+			mu.Unlock()
 			wg.Done()
 		}()
 	}
