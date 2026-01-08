@@ -7,8 +7,8 @@ func main() {
 
 	c := make(chan int)
 
-	output := func(wc <-chan int) {
-		fmt.Println(<-wc)
+	output := func(rc <-chan int) {
+		fmt.Println(<-rc)
 	}
 
 	go func(wc chan<- int) {
