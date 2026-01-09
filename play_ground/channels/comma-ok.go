@@ -17,4 +17,10 @@ func main() {
 
 	v, ok = <-c
 	fmt.Println(v, ok)
+
+	if v, ok = <-c; !ok {
+		fmt.Println("Value", v)
+	} else {
+		fmt.Println("No value")
+	}
 }
