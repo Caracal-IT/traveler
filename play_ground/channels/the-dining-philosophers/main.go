@@ -105,7 +105,7 @@ func dine() {
 func diningProblem(philosopher Philosopher, wg *sync.WaitGroup, forks map[int]*sync.Mutex, seated *sync.WaitGroup) {
 	defer wg.Done()
 
-	// seat the philosopher at the table
+	// Seat the philosopher at the table
 	fmt.Printf("%s is seated at the table.\n", philosopher.name)
 
 	// Decrement the seated WaitGroup by one.
