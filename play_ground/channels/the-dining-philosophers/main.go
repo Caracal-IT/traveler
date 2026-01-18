@@ -25,6 +25,9 @@ var eatTime = 1 * time.Second
 var thinkTime = 1400 * time.Millisecond
 var sleepTime = 1 * time.Second
 
+var orderMutex sync.Mutex
+var orderFinished []string
+
 func main() {
 	fmt.Println("The Dining Philosophers")
 	fmt.Println("======================")
@@ -34,6 +37,9 @@ func main() {
 	dine()
 
 	fmt.Println("The table is empty.")
+
+	fmt.Println("Finished eating order.")
+	fmt.Println(orderFinished)
 }
 
 func dine() {
@@ -99,4 +105,8 @@ func diningProblem(philosopher Philosopher, wg *sync.WaitGroup, seated *sync.Wai
 
 	fmt.Printf("%s is satisfied.\n", philosopher.Name)
 	fmt.Printf("%s left the table.\n", philosopher.Name)
+
+	orderMutex.Lock()
+	orderFinished = append(orderFinished, philosopher.Name)
+	orderMutex.Unlock()
 }
