@@ -1,9 +1,28 @@
 package main
 
+import (
+	"database/sql"
+	"log"
+	"os"
+	"time"
+
+	_ "github.com/jackc/pgconn"
+	_ "github.com/jackc/pgx/v4"
+	_ "github.com/jackc/pgx/v4/stdlib"
+)
+
 const webPort = ":80"
 
 func main() {
 	// connect to the database
+	db := initDb()
+
+	defer func(db *sql.DB) {
+		err := db.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(db)
 
 	// create sessions
 
@@ -17,4 +36,54 @@ func main() {
 
 	// listen for web connections
 
+}
+
+func initDb() *sql.DB {
+	conn := connectToDB()
+
+	if conn == nil {
+		panic("failed to connect to database")
+	}
+
+	return conn
+}
+
+func connectToDB() *sql.DB {
+	counts := 0
+	dsn := os.Getenv("DSN")
+
+	for {
+		counts++
+		connection, err := openDB(dsn)
+
+		if err != nil {
+			log.Println("failed to connect to database")
+		} else {
+			log.Println("connected to database")
+			return connection
+		}
+
+		if counts > 10 {
+			return nil
+		}
+
+		log.Println("retrying connection in 1 seconds")
+		time.Sleep(time.Second)
+	}
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("pgx", dsn)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Ping()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
