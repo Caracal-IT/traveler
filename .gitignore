@@ -40,3 +40,4 @@ Thumbs.db
 /docker/certs/solace/release/
 /docker/solace/certs/
 /play_ground/channels/subscriptions/db-data/
+/play_ground/channels/subscriptions/myapp
