@@ -3,10 +3,9 @@ package data
 import (
 	"context"
 	"errors"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 // User is the structure which holds one user from the database.
@@ -116,27 +115,6 @@ func (u *User) GetByEmail(email string) (*User, error) {
 		return nil, err
 	}
 
-	// get plan, if any
-	query = `select p.id, p.plan_name, p.plan_amount, p.created_at, p.updated_at from 
-			plans p
-			left join user_plans up on (p.id = up.plan_id)
-			where up.user_id = $1`
-
-	var plan Plan
-	row = db.QueryRowContext(ctx, query, user.ID)
-
-	err = row.Scan(
-		&plan.ID,
-		&plan.PlanName,
-		&plan.PlanAmount,
-		&plan.CreatedAt,
-		&plan.UpdatedAt,
-	)
-
-	if err == nil {
-		user.Plan = &plan
-	}
-
 	return &user, nil
 }
 
@@ -145,9 +123,7 @@ func (u *User) GetOne(id int) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, email, first_name, last_name, password, user_active, is_admin, created_at, updated_at 
-				from users 
-				where id = $1`
+	query := `select id, email, first_name, last_name, password, user_active, is_admin, created_at, updated_at from users where id = $1`
 
 	var user User
 	row := db.QueryRowContext(ctx, query, id)
@@ -170,8 +146,8 @@ func (u *User) GetOne(id int) (*User, error) {
 
 	// get plan, if any
 	query = `select p.id, p.plan_name, p.plan_amount, p.created_at, p.updated_at from 
-			plans p
-			left join user_plans up on (p.id = up.plan_id)
+			user_plans up
+			left join plans p on (p.id = up.plan_id)
 			where up.user_id = $1`
 
 	var plan Plan
@@ -187,8 +163,6 @@ func (u *User) GetOne(id int) (*User, error) {
 
 	if err == nil {
 		user.Plan = &plan
-	} else {
-		log.Println("Error getting plan", err)
 	}
 
 	return &user, nil
@@ -196,7 +170,7 @@ func (u *User) GetOne(id int) (*User, error) {
 
 // Update updates one user in the database, using the information
 // stored in the receiver u
-func (u *User) Update(user User) error {
+func (u *User) Update() error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
@@ -209,12 +183,12 @@ func (u *User) Update(user User) error {
 		where id = $6`
 
 	_, err := db.ExecContext(ctx, stmt,
-		user.Email,
-		user.FirstName,
-		user.LastName,
-		user.Active,
+		u.Email,
+		u.FirstName,
+		u.LastName,
+		u.Active,
 		time.Now(),
-		user.ID,
+		u.ID,
 	)
 
 	if err != nil {
