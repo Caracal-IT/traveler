@@ -1,0 +1,46 @@
+# Command Line Basics
+
+## Run in a docker container
+
+### Docker
+
+#### Interactive
+
+```bash
+docker run --rm -it ubuntu:latest /bin/bash
+```
+
+#### Register Shortcut
+
+**Add alias to zsh (default on macOS)**
+
+```bash
+echo "alias linux='docker run --rm -it ubuntu:latest /bin/bash'" >> ~/.zshrc
+source ~/.zshrc
+```
+
+** Add to bash profile (if you use bash) ~/.bash_profile**
+
+```bash
+echo "alias linux='docker run --rm -it ubuntu:latest /bin/bash'" >> ~/.bash_profile
+```
+
+**source ~/.bash_profile**
+
+**Create Shortcut**
+
+```bash
+mkdir -p ~/bin
+cat > ~/bin/linux <<'EOF'
+#!/usr/bin/env bash
+docker run --rm -it ubuntu:latest /bin/bash "$@"
+EOF
+chmod +x ~/bin/linux
+```
+
+**Ensure ~/bin is in PATH (adds to ~/.zshrc if not present)**
+
+```bash
+grep -q 'export PATH="$HOME/bin:$PATH"' ~/.zshrc || echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
