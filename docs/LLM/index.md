@@ -70,5 +70,9 @@ When using open LLMs, consider the following best practices:
 - Respect privacy and ethical considerations when using the model.
 - Document your usage and contributions to the open LLM community.
 
+## Resources
+
+https://github.com/mschwarzmueller/local-llms-via-lmstudio-ollama/blob/main/attachments/slides.pdf
+
 
 
