@@ -72,7 +72,14 @@ When using open LLMs, consider the following best practices:
 
 ## Resources
 
+### Slides
+
 https://github.com/mschwarzmueller/local-llms-via-lmstudio-ollama/blob/main/attachments/slides.pdf
+
+
+### Tokenizer
+
+https://tiktokenizer.vercel.app
 
 
 
