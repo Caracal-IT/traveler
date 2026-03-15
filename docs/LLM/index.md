@@ -81,5 +81,10 @@ https://github.com/mschwarzmueller/local-llms-via-lmstudio-ollama/blob/main/atta
 
 https://tiktokenizer.vercel.app
 
+### Hugging Face
+
+https://huggingface.co/google/gemma-3-12b-it-qat-q4_0-gguf
+
+
 
 
