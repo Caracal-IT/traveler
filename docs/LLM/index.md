@@ -85,6 +85,9 @@ https://tiktokenizer.vercel.app
 
 https://huggingface.co/google/gemma-3-12b-it-qat-q4_0-gguf
 
+### LM Studio
+
+https://lmstudio.ai
 
 
 
