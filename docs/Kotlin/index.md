@@ -36,7 +36,7 @@ The basic types in Kotlin include:
 - `Long` for long integers -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807
 - `Float` for single-precision floating-point numbers 3.4028235E38 to 1.17549435E–38
 - `Double` for floating-point numbers 1.7976931348623157E308 to 4.9E–324
-- `Boolean` for true/false values 
+- `Boolean` for true/false values True or False
 - `String` for text
 - `Char` for single characters
 - `Array` for collections of elements
@@ -46,3 +46,105 @@ The basic types in Kotlin include:
 - `Pair` for two-element tuples
 - `Triple` for three-element tuples 
 
+
+## Operators
+
+Operators are used to perform operations on values. 
+
+- + Addition
+- - Subtraction
+- * Multiplication
+- / Division
+- % Remainder
+- == Equal to
+- != Not equal to
+- < Less than
+- > Greater than
+- <= Less than or equal to
+- >= Greater than or equal to
+- && Logical AND
+- || Logical OR
+- ! Logical NOT
+- ++ Increment
+- -- Decrement
+- += Addition assignment
+- -= Subtraction assignment
+- *= Multiplication assignment
+- /= Division assignment
+- %= Remainder assignment
+- === Identity
+- !== Not identity 
+- ?: Elvis operator
+- !! Not null assertion
+
+## Conditionals
+
+conditionals are used to make decisions based on the value of a condition. 
+
+- if-else
+- when
+- ?: Elvis operator
+- !! Not null assertion
+- && Logical AND
+- || Logical OR
+- ! Logical NOT
+
+```kotlin
+if (x > 5) {
+    println("x is greater than 5")
+} else {
+    println("x is less than or equal to 5")
+}
+```
+
+```kotlin
+val result = if (x > 5) "x is greater than 5" else "x is less than or equal to 5"
+```
+
+```kotlin
+val result = if (x > 5) {
+    "x is greater than 5"
+} else {
+    "x is less than or equal to 5"
+}
+```
+
+```kotlin
+when (x) {
+    1 -> print("x is 1")
+    2 -> print("x is 2")
+    else -> print("x is neither 1 nor 2")
+}
+```
+
+```kotlin
+val result = when (x) {
+    1 -> "x is 1"
+    2 -> "x is 2"
+    else -> "x is neither 1 nor 2"
+}
+```
+
+```kotlin
+val result = when (x) {
+    in 1..10 -> "x is between 1 and 10"
+    in 11..20 -> "x is between 11 and 20"
+    else -> "x is not between 1 and 20"
+}
+```
+
+```kotlin
+val result = when (x) {
+    !in 1..10 -> "x is not between 1 and 10"
+}
+ ```
+
+```kotlin
+val result = when (x) {
+    is Int -> "x is an integer"
+    is String -> "x is a string"
+    else -> "x is neither an integer nor a string"
+}
+```
+
+    
