@@ -214,4 +214,38 @@ for (i in 1..10) {
 }
 ````
 
+## Arrays
+
+Arrays are used to store a collection belonging to elements of the same type. 
+
+```kotlin
+val numbers = arrayOf(1, 2, 3, 4, 5)
+```
+
+```kotlin
+val numbers = intArrayOf(1, 2, 3, 4, 5)
+
+for (num in numbers) {
+    println(num)
+}
+
+numbers.forEach { it -> println(it) }
+```
+
+## Ranges
+
+Ranges are used to define a sequence of numbers or elements in a collection.
+They are used to iterate over a range of values or elements in a collection.
+The range operator `..` is used to define a range.
+
+```kotlin
+val numbers = 1..5
+```
+
+```kotlin
+for (i in 1..5) {
+    println(i)
+}
+````
+
 
