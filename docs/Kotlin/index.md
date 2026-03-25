@@ -147,4 +147,71 @@ val result = when (x) {
 }
 ```
 
-    
+## Loops
+
+loops are used to repeat a block of code a specified number of times.
+They are useful for iterating over collections, performing repetitive tasks, and controlling the flow of execution in a program.
+There are several types of loops available in Kotlin, including for loops, while loops, and do-while loops.
+For loops are used to iterate over a range of values or elements in a collection.
+While loops are used to execute a block of code repeatedly as long as a condition is true.
+Do-while loops are similar to while loops, but they guarantee that the block of code is executed at least once.
+Loops can be nested to perform more complex operations and control the flow of execution in a program
+
+```kotlin
+for (i = 1; i <= 5; i++) {
+    println(i)
+}
+```
+
+```kotlin
+for (i in 1..5) {
+    println(i)
+}
+```
+
+```kotlin
+val numbers = listOf(1, 2, 3, 4, 5)`    
+for (number in numbers) {
+    println(number)
+}
+```
+
+```kotlin
+var i = 1
+while (i <= 5) {
+    println(i)
+    i++
+}
+``` 
+
+```kotlin
+var i = 1
+do {
+    println(i)
+    i++
+} while (i <= 5)
+```
+
+## Break and Continue
+
+The `break` and `continue` statements are used to exit or skip parts of a loop.
+
+```kotlin
+for (i in 1..10) {
+    if (i == 5) {
+        break
+    }
+    println(i)
+}
+```
+
+```kotlin
+for (i in 1..10) {
+    if (i == 5) {
+        continue
+    }
+    println(i)
+}
+````
+
+
