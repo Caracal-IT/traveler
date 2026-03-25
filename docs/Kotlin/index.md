@@ -238,8 +238,18 @@ Ranges are used to define a sequence of numbers or elements in a collection.
 They are used to iterate over a range of values or elements in a collection.
 The range operator `..` is used to define a range.
 
+Close ranges are used to define a range of numbers or elements in a collection.  The range operator `..` is used to    
+define a range.
+
+Half-open ranges are used to define a range of numbers or elements in a collection. The range operator `until`   
+is used to define a half-open range.
+
 ```kotlin
+// Closed Range
 val numbers = 1..5
+
+// Half Open Range
+val numbers = 1 until 5
 ```
 
 ```kotlin
