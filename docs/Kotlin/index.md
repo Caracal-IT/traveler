@@ -258,4 +258,18 @@ for (i in 1..5) {
 }
 ````
 
+## Functions
+
+Functions are used to define blocks of code that perform a specific task.
+Functions can be defined using the `fun` keyword. Functions can have parameters and return a value.
+
+```kotlin
+fun sum(a: Int, b: Int): Int {
+    return a + b
+}
+```
+
+```kotlin
+fun sum(a: Int, b: Int) = a + b
+```
 
