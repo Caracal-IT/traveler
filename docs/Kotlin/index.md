@@ -273,3 +273,53 @@ fun sum(a: Int, b: Int): Int {
 fun sum(a: Int, b: Int) = a + b
 ```
 
+### Function Overloading
+
+Functions can be overloaded by providing different parameter lists with the same name.
+
+```kotlin
+fun sum(a: Int, b: Int): Int {
+    return a + b
+}
+
+fun sum(a: Double, b: Double): Double {
+    return a + b
+}
+```
+
+## OOP in Kotlin
+
+Kotlin is a multi-paradigm language. It supports object-oriented programming (OOP) concepts such as classes, objects,   
+inheritance, polymorphism, and encapsulation. Kotlin also supports functional programming concepts such as lambdas,   
+higher-order functions, and immutability. Kotlin is designed to be concise, expressive, and safe, making it a   
+popular choice for Android app development and other applications.
+
+### Class
+
+Classes are used to define data types and objects. Classes are used to create objects that represent real-world   
+entities. Classes are used to define data types and objects. Classes are used to create objects that represent   
+real-world entities. Classes can have properties and methods.
+
+```kotlin
+class Person(val name: String, val age: Int) {
+    fun introduce() {
+        println("Hi, my name is $name and I am $age years old.")
+    }
+}
+```
+
+#### Primary Constructor
+
+primary constructor is used to initialize the properties of the class. 1 primary constructor is allowed in a class.
+
+```kotlin
+class Person(val name: String, val age: Int) {
+    fun introduce() {
+        println("Hi, my name is $name and I am $age years old.")
+    }
+}
+```
+
+
+
+
