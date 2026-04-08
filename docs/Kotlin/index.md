@@ -320,6 +320,42 @@ class Person(val name: String, val age: Int) {
 }
 ```
 
+#### Secondary Constructor
+
+secondary constructor is used to initialize the properties of the class. 1 or more secondary constructors are 
+allowed in a class. Secondary constructors are defined using the `constructor` keyword.
+
+```kotlin
+class Person(val name: String, val age: Int) {
+    constructor(name: String) : this(name, 0)
+    
+    fun introduce() {
+        println("Hi, my name is $name and I am $age years old.")
+    }
+}
+```
+
+#### Inheritance
+
+Inheritance is used to create subclasses that inherit properties and methods from a superclass. Inheritance is     
+used to create subclasses that inherit properties and methods from a superclass. Inheritance is used to create   
+subclasses that inherit properties and methods from a superclass. Inheritance is used to create subclasses that   
+inherit properties and methods from a superclass.
+
+```kotlin
+open class Animal(val name: String) {
+    fun eat() {
+        println("$name is eating.")
+    }
+} 
+
+class Dog(name: String) : Animal(name) {
+    fun bark() {
+        println("$name is barking.")
+    }
+}
+```
+
 
 
 
