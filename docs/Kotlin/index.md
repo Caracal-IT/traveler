@@ -335,6 +335,18 @@ class Person(val name: String, val age: Int) {
 }
 ```
 
+#### Init Block
+
+Init block is used to initialize the properties of the class. Init block is executed when the class is instantiated.    
+Init block is defined using the `init` keyword.
+
+```kotlin
+class Person(val name: String, val age: Int) {
+init {
+    println("Initializing Person with name: $name and age: $age")
+}   
+```
+
 #### Inheritance
 
 Inheritance is used to create subclasses that inherit properties and methods from a superclass. Inheritance is     
