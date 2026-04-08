@@ -369,5 +369,32 @@ class Dog(name: String) : Animal(name) {
 ```
 
 
+### Super
+This keyword is used to call the superclass constructor. It is used to call the superclass constructor.
+
+```kotlin
+open class Animal(val name: String) {
+    fun eat() {
+        println("$name is eating.")
+    }
+}
+
+class Dog(name: String) : Animal(name) {
+
+    constructor(name: String, breed: String) : super(name) {
+        println("Dog breed: $breed")
+    }
+
+    constructor(name: String, breed: String) : super(name) {
+        println("Dog breed: $breed")
+    }
+    
+    fun bark() {
+        println("$name is barking.")
+    }
+}
+``` 
+
+
 
 
