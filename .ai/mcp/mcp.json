@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "aha": {
+      "url": "https://ideal-rich-quite.use3.aha.io/api/v1/mcp"
+    }
+  }
+}
