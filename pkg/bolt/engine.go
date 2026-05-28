@@ -12,7 +12,7 @@ import (
 	"strings"
 	texttmpl "text/template"
 
-	appconfig "traveler/pkg/config"
+	appconfig "traveler/pkg/config" /**/
 )
 
 type engine struct {
