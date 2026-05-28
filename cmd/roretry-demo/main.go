@@ -183,7 +183,7 @@ func (d *demoCommandTarget) RunPrimary(ctx context.Context) error {
 	return fmt.Errorf("primary temporary failure attempt=%d", d.primaryAttempts)
 }
 
-func (d *demoCommandTarget) RunSecondary(ctx context.Context) error {
+func (d *demoCommandTarget) RunSecondary(_ context.Context) error {
 	d.secondaryAttempts++
 	if d.secondaryAttempts >= 2 {
 		return nil
