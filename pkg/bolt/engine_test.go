@@ -87,14 +87,19 @@ func TestRenderAs_TextFormat_ObjectOutputRejected(t *testing.T) {
 	require.Contains(t, err.Error(), "requires string or []byte output")
 }
 
-func TestRender_RejectsAbsoluteTemplateDir(t *testing.T) {
-	_, err := Render(Request[map[string]any]{
+func TestRender_AllowsAbsoluteTemplateDir(t *testing.T) {
+	templateDir := t.TempDir()
+	templatePath := filepath.Join(templateDir, "profile.json.tmpl")
+	err := os.WriteFile(templatePath, []byte(`{"name":"{{.name}}"}`), 0o644)
+	require.NoError(t, err)
+
+	out, err := Render(Request[map[string]any]{
 		TemplateName: "profile.json.tmpl",
-		TemplateDir:  t.TempDir(),
+		TemplateDir:  templateDir,
 		Payload:      map[string]any{"name": "Bolt"},
 	})
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "template_dir must be a relative path")
+	require.NoError(t, err)
+	require.JSONEq(t, `{"name":"Bolt"}`, out)
 }
 
 func TestRender_RejectsAbsoluteTemplateName(t *testing.T) {

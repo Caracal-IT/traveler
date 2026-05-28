@@ -229,18 +229,7 @@ func (e *engine) resolveTemplate(inlineTemplate string, templateName string) (st
 	if filepath.IsAbs(templateName) {
 		return "", errors.New("template_name must be a relative path")
 	}
-	if e.templateDir != "" && filepath.IsAbs(e.templateDir) {
-		return "", errors.New("template_dir must be a relative path")
-	}
-
-	baseDir := "."
-	if e.templateDir != "" {
-		baseDir = e.templateDir
-	}
-	if !filepath.IsAbs(baseDir) {
-		baseDir = filepath.Join(".", baseDir)
-	}
-
+	baseDir := normalizeTemplateDir(e.templateDir)
 	path := filepath.Join(baseDir, templateName)
 	path = filepath.Clean(path)
 
@@ -249,6 +238,16 @@ func (e *engine) resolveTemplate(inlineTemplate string, templateName string) (st
 		return "", fmt.Errorf("read template file %q: %w", path, err)
 	}
 	return string(data), nil
+}
+
+func normalizeTemplateDir(dir string) string {
+	if dir == "" {
+		return "."
+	}
+	if filepath.IsAbs(dir) {
+		return dir
+	}
+	return filepath.Join(".", dir)
 }
 
 func buildContext(model any, payload any) (map[string]any, error) {

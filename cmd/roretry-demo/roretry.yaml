@@ -1,0 +1,12 @@
+overall_cycles: 5
+overall_backoff_millis: 200
+start: primary
+groups:
+  - name: primary
+    method: RunPrimary
+    max_retries: 3
+    backoff_millis: 150
+  - name: secondary
+    method: RunSecondary
+    max_retries: 2
+    backoff_millis: 100
