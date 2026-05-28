@@ -99,3 +99,19 @@ func LoadOrDefault(configPath string) *Config {
 	}
 	return cfg
 }
+
+// LoadInto reads any supported Viper config file into target.
+func LoadInto(configPath string, target any) error {
+	v := viper.New()
+	v.SetConfigFile(configPath)
+
+	if err := v.ReadInConfig(); err != nil {
+		return fmt.Errorf("failed to read config: %w", err)
+	}
+
+	if err := v.Unmarshal(target); err != nil {
+		return fmt.Errorf("failed to unmarshal config: %w", err)
+	}
+
+	return nil
+}
