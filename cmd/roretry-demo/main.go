@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"os"
 	"time"
 
@@ -30,6 +31,12 @@ func runInlineDemo() {
 				Name: "primary",
 				Run: func(ctx context.Context) error {
 					primaryAttempts++
+
+					// randomly fail to trigger secondary
+					if rand.Float32() < 0.5 {
+						return fmt.Errorf("random primary failure")
+					}
+
 					if primaryAttempts >= 3 {
 						return nil
 					}
@@ -65,6 +72,12 @@ func runConfigMapDemo(configPath string) {
 	commandMap := map[string]roretry.CommandFunc{
 		"primary": func(ctx context.Context) error {
 			primaryAttempts++
+
+			// randomly fail to trigger secondary
+			if rand.Float32() < 0.5 {
+				return fmt.Errorf("random primary failure")
+			}
+
 			if primaryAttempts >= 3 {
 				return nil
 			}
@@ -158,6 +171,12 @@ type demoCommandTarget struct {
 
 func (d *demoCommandTarget) RunPrimary(ctx context.Context) error {
 	d.primaryAttempts++
+
+	// randomly fail to trigger secondary
+	if rand.Float32() < 0.5 {
+		return fmt.Errorf("random primary failure")
+	}
+
 	if d.primaryAttempts >= 3 {
 		return nil
 	}
