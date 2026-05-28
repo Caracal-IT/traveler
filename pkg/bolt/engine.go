@@ -91,6 +91,10 @@ func buildEngineFromRequest(request renderRequest) (*engine, error) {
 		e.templateDir = request.templateDir()
 	}
 
+	if e.templateDir == "" {
+		e.templateDir = "."
+	}
+
 	return e, nil
 }
 
@@ -115,11 +119,7 @@ func resolveConfigPath(path string) (string, error) {
 		return path, nil
 	}
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "", fmt.Errorf("resolve current directory: %w", err)
-	}
-	return filepath.Join(cwd, path), nil
+	return filepath.Abs(path)
 }
 
 // RenderAs renders a request into the requested generic output type.
@@ -180,13 +180,16 @@ func decodeOutput[TOut any](format Format, rendered []byte) (TOut, error) {
 	var out TOut
 	outType := reflect.TypeOf((*TOut)(nil)).Elem()
 
-	switch {
-	case outType.Kind() == reflect.String:
+	switch outType.Kind() {
+	case reflect.String:
 		reflect.ValueOf(&out).Elem().SetString(string(rendered))
 		return out, nil
-	case outType.Kind() == reflect.Slice && outType.Elem().Kind() == reflect.Uint8:
-		reflect.ValueOf(&out).Elem().SetBytes(rendered)
-		return out, nil
+	case reflect.Slice:
+		if outType.Elem().Kind() == reflect.Uint8 {
+			reflect.ValueOf(&out).Elem().SetBytes(rendered)
+			return out, nil
+		}
+		fallthrough
 	default:
 		if format != FormatJSON {
 			return out, fmt.Errorf("format %q requires string or []byte output type", format)
@@ -229,8 +232,7 @@ func (e *engine) resolveTemplate(inlineTemplate string, templateName string) (st
 	if filepath.IsAbs(templateName) {
 		return "", errors.New("template_name must be a relative path")
 	}
-	baseDir := normalizeTemplateDir(e.templateDir)
-	path := filepath.Join(baseDir, templateName)
+	path := filepath.Join(e.templateDir, templateName)
 	path = filepath.Clean(path)
 
 	data, err := os.ReadFile(path)
@@ -238,16 +240,6 @@ func (e *engine) resolveTemplate(inlineTemplate string, templateName string) (st
 		return "", fmt.Errorf("read template file %q: %w", path, err)
 	}
 	return string(data), nil
-}
-
-func normalizeTemplateDir(dir string) string {
-	if dir == "" {
-		return "."
-	}
-	if filepath.IsAbs(dir) {
-		return dir
-	}
-	return filepath.Join(".", dir)
 }
 
 func buildContext(model any, payload any) (map[string]any, error) {

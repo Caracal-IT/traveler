@@ -3,6 +3,7 @@ package log
 import (
 	"os"
 	"strings"
+	"sync"
 
 	"traveler/pkg/config"
 
@@ -10,13 +11,19 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var sug *zap.SugaredLogger
+var (
+	sug *zap.SugaredLogger
+	mu  sync.RWMutex
+)
 
 // Init configures a global sugared logger based on a level string (debug/info/warn/error).
 // If filePath is not empty, logs will be written to both stdout and the specified file.
 // If esCfg is provided and Enabled, logs will also be shipped to Elasticsearch.
 // It returns an error if the underlying logger cannot be built.
 func Init(level string, filePath string, esCfg *config.ElasticLogConfig) error {
+	mu.Lock()
+	defer mu.Unlock()
+
 	lvl := zapcore.InfoLevel
 	switch strings.ToLower(level) {
 	case "debug":
@@ -72,18 +79,19 @@ func Init(level string, filePath string, esCfg *config.ElasticLogConfig) error {
 // Sugar returns the global *zap.SugaredLogger. It will lazily initialize an
 // info-level logger if Init wasn't called.
 func Sugar() *zap.SugaredLogger {
-	if sug == nil {
-		_ = Init("info", "", nil)
+	mu.RLock()
+	if sug != nil {
+		defer mu.RUnlock()
+		return sug
 	}
+	mu.RUnlock()
+	_ = Init("info", "", nil)
 	return sug
 }
 
 // Logger returns the underlying *zap.Logger. It will lazily initialize if needed.
 func Logger() *zap.Logger {
-	if sug == nil {
-		_ = Init("info", "", nil)
-	}
-	return sug.Desugar()
+	return Sugar().Desugar()
 }
 
 // Sync flushes any buffered log entries.
@@ -95,26 +103,26 @@ func Sync() error {
 }
 
 // Debug logs a debug message with optional key-value pairs.
-func Debug(msg string, keysAndValues ...interface{}) {
+func Debug(msg string, keysAndValues ...any) {
 	Sugar().Debugw(msg, keysAndValues...)
 }
 
 // Info logs an info message with optional key-value pairs.
-func Info(msg string, keysAndValues ...interface{}) {
+func Info(msg string, keysAndValues ...any) {
 	Sugar().Infow(msg, keysAndValues...)
 }
 
 // Warn logs a warning message with optional key-value pairs.
-func Warn(msg string, keysAndValues ...interface{}) {
+func Warn(msg string, keysAndValues ...any) {
 	Sugar().Warnw(msg, keysAndValues...)
 }
 
 // Error logs an error message with optional key-value pairs.
-func Error(msg string, keysAndValues ...interface{}) {
+func Error(msg string, keysAndValues ...any) {
 	Sugar().Errorw(msg, keysAndValues...)
 }
 
 // Fatal logs a fatal message with optional key-value pairs and exits.
-func Fatal(msg string, keysAndValues ...interface{}) {
+func Fatal(msg string, keysAndValues ...any) {
 	Sugar().Fatalw(msg, keysAndValues...)
 }

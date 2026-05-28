@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 
 	appdb "traveler/internal/db"
 	"traveler/internal/handlers"
@@ -25,6 +26,9 @@ func Run(ctx context.Context, cfg *config.Config) error {
 		DisableStartupMessage: true,
 	})
 
+	app.Use(logMiddleware())
+	app.Use(recover.New())
+
 	handlers.RegisterRoutes(app, cfg, sqlDb)
 
 	errCh := make(chan error, 1)
@@ -35,6 +39,25 @@ func Run(ctx context.Context, cfg *config.Config) error {
 		return gracefulShutdown(app, sqlDb)
 	case err := <-errCh:
 		_ = sqlDb.Close()
+		_ = log.Sync()
+		return err
+	}
+}
+
+func logMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		start := time.Now()
+		err := c.Next()
+		stop := time.Now()
+
+		log.Info("request",
+			"method", c.Method(),
+			"path", c.Path(),
+			"status", c.Response().StatusCode(),
+			"latency", stop.Sub(start).String(),
+			"ip", c.IP(),
+		)
+
 		return err
 	}
 }
@@ -56,12 +79,12 @@ func gracefulShutdown(app *fiber.App, sqlDb *sql.DB) error {
 	ctxShutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := app.ShutdownWithContext(ctxShutdown); err != nil {
+	defer func() {
 		_ = sqlDb.Close()
-		return err
-	}
+		_ = log.Sync()
+	}()
 
-	return sqlDb.Close()
+	return app.ShutdownWithContext(ctxShutdown)
 }
 
 // initDatabase initializes the SQLite database and applies the schema.

@@ -62,10 +62,11 @@ func Run(ctx context.Context, request Request) (Status, error) {
 	var lastErr error
 
 	for cycle := 1; plan.maxCycles < 0 || cycle <= plan.maxCycles; cycle++ {
-		order := plan.commands
-		if cycle == 1 && plan.startIndex > 0 {
-			order = plan.commands[plan.startIndex:]
+		startIndex := 0
+		if cycle == 1 {
+			startIndex = plan.startIndex
 		}
+		order := plan.commands[startIndex:]
 
 		for _, cmd := range order {
 			for attempt := 1; attempt <= cmd.MaxRetries; attempt++ {
@@ -153,7 +154,7 @@ func Run(ctx context.Context, request Request) (Status, error) {
 		status.LastError = "no command succeeded"
 	}
 
-	return status, errors.New(status.LastError)
+	return status, fmt.Errorf("roretry: %s", status.LastError)
 }
 
 type resolvedPlan struct {
@@ -162,6 +163,18 @@ type resolvedPlan struct {
 	start          string
 	maxCycles      int
 	overallBackoff time.Duration
+}
+
+func (r Request) startIndex(commands []Command, start string) int {
+	if start == "" {
+		return 0
+	}
+	for i, cmd := range commands {
+		if cmd.Name == start {
+			return i
+		}
+	}
+	return -1
 }
 
 func resolvePlan(request Request) (resolvedPlan, error) {
@@ -187,19 +200,9 @@ func resolvePlan(request Request) (resolvedPlan, error) {
 	if start == "" {
 		start = cfg.StartGroup
 	}
-	startIndex := 0
-	if start != "" {
-		found := false
-		for i, command := range commands {
-			if command.Name == start {
-				startIndex = i
-				found = true
-				break
-			}
-		}
-		if !found {
-			return resolvedPlan{}, fmt.Errorf("start group %q not found in commands", start)
-		}
+	startIndex := request.startIndex(commands, start)
+	if startIndex < 0 {
+		return resolvedPlan{}, fmt.Errorf("start group %q not found in commands", start)
 	}
 
 	maxCycles := request.OverallCycles

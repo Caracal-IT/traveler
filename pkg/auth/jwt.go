@@ -16,10 +16,8 @@ import (
 )
 
 var (
-	jwksOnce sync.Once
-	jwksMap  = make(map[string]*keyfunc.JWKS)
-	jwksErr  error
-	mu       sync.RWMutex
+	jwksMap = make(map[string]*keyfunc.JWKS)
+	mu      sync.RWMutex
 )
 
 // getJWKS returns a cached JWKS for the given JWKS URL.
@@ -117,7 +115,7 @@ func JWTMiddleware(cfg *config.Config) fiber.Handler {
 					if strings.EqualFold(v, audience) {
 						audOK = true
 					}
-				case []interface{}:
+				case []any:
 					for _, item := range v {
 						if s, ok := item.(string); ok && strings.EqualFold(s, audience) {
 							audOK = true
@@ -137,7 +135,7 @@ func JWTMiddleware(cfg *config.Config) fiber.Handler {
 			// 3) Fallback to Keycloak's `resource_access` map which lists client roles
 			//    Accept token if it contains an entry for our client id regardless of roles
 			if !audOK {
-				if ra, ok := claims["resource_access"].(map[string]interface{}); ok {
+				if ra, ok := claims["resource_access"].(map[string]any); ok {
 					if _, exists := ra[audience]; exists {
 						audOK = true
 					}

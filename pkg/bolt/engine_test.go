@@ -202,6 +202,23 @@ func TestRender_ConfigFile_RelativePathUsesCurrentDirectory(t *testing.T) {
 	require.JSONEq(t, `{"msg":"Hello Bolt"}`, out)
 }
 
+func TestRender_NestedStructs(t *testing.T) {
+	type Meta struct {
+		Key string `json:"key"`
+	}
+	type Payload struct {
+		Name string `json:"name"`
+		Meta Meta   `json:"meta"`
+	}
+	out, err := Render(Request[Payload]{
+		Template: `{{.name}} - {{.meta.key}}`,
+		Format:   FormatText,
+		Payload:  Payload{Name: "bolt", Meta: Meta{Key: "val"}},
+	})
+	require.NoError(t, err)
+	require.Equal(t, "bolt - val", out)
+}
+
 func BenchmarkRenderJSON(b *testing.B) {
 	request := Request[map[string]any]{
 		Template: `{"id":"{{.id}}","name":"{{.name}}","meta":{{toJSON .meta}},"ok":true}`,

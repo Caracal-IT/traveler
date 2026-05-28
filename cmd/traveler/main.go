@@ -26,7 +26,7 @@ func main() {
 	defer func() { _ = log.Sync() }()
 
 	logMsg := "starting application"
-	logFields := []interface{}{"port", cfg.Server.Port, "log_level", cfg.Log.Level}
+	logFields := []any{"port", cfg.Server.Port, "log_level", cfg.Log.Level}
 
 	if cfg.Log.File != "" {
 		logFields = append(logFields, "log_file", cfg.Log.File)

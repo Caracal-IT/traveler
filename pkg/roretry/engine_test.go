@@ -433,6 +433,32 @@ func TestRun_ConfigAppliesOverallBackoff(t *testing.T) {
 	require.GreaterOrEqual(t, elapsed, 20*time.Millisecond)
 }
 
+func TestRun_InfiniteCycles(t *testing.T) {
+	attempts := 0
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	request := Request{
+		Commands: []Command{
+			{
+				Name:       "primary",
+				MaxRetries: 1,
+				Run: func(ctx context.Context) error {
+					attempts++
+					return errors.New("fail")
+				},
+			},
+		},
+		OverallCycles: -1,
+	}
+
+	status, err := Run(ctx, request)
+	require.Error(t, err)
+	require.ErrorIs(t, err, context.DeadlineExceeded)
+	require.Greater(t, attempts, 5)
+	require.False(t, status.Success)
+}
+
 func BenchmarkRun_SingleSuccess(b *testing.B) {
 	request := Request{
 		Commands: []Command{
