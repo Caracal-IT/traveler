@@ -56,22 +56,11 @@ func main() {
 		exitErr(err)
 	}
 
-	engineOptions := []bolt.Option{}
-	if templateDir != "" {
-		engineOptions = append(engineOptions, bolt.WithTemplateDir(templateDir))
-	}
-	var engine *bolt.Engine
-	if configFile != "" {
-		engine, err = bolt.NewEngineFromConfigFile(configFile, engineOptions...)
-		if err != nil {
-			exitErr(err)
-		}
-	} else {
-		engine = bolt.NewEngine(engineOptions...)
-	}
-	rendered, err := bolt.Render[any, []byte](engine, bolt.Request[any]{
+	rendered, err := bolt.RenderAs[[]byte](bolt.Request[any]{
 		Template:     templateInline,
 		TemplateName: templateName,
+		ConfigFile:   configFile,
+		TemplateDir:  templateDir,
 		Payload:      dataPayload,
 		Model:        modelPayload,
 	})

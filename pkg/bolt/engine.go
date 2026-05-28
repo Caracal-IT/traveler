@@ -15,17 +15,12 @@ import (
 	appconfig "traveler/pkg/config"
 )
 
-// Engine renders templates from JSON, Go structs, or both.
-type Engine struct {
+type engine struct {
 	templateFuncs map[string]any
 	templateDir   string
 }
 
-// Option configures the Engine.
-type Option func(*Engine)
-
-// Config represents engine settings loaded from a config file.
-type Config struct {
+type engineConfig struct {
 	TemplateDir string `json:"template_dir" mapstructure:"template_dir"`
 }
 
@@ -43,62 +38,73 @@ const (
 // Use Template directly for inline templates, or TemplateName to resolve from file.
 // When both are provided, Template is used.
 // If Format is empty, json is used.
+// ConfigFile is optional and can provide default template_dir.
+// TemplateDir overrides template_dir from ConfigFile when both are set.
 type Request[T any] struct {
 	TemplateName string
 	Template     string
 	Format       Format
+	ConfigFile   string
+	TemplateDir  string
 	Payload      T
 	Model        any
 }
 
-// WithTemplateDir configures a base directory for resolving request template names.
-func WithTemplateDir(dir string) Option {
-	return func(e *Engine) {
-		e.templateDir = dir
-	}
+type renderRequest interface {
+	templateName() string
+	templateInline() string
+	format() Format
+	configFile() string
+	templateDir() string
+	payload() any
+	model() any
 }
 
-// NewEngine creates a templating engine with safe defaults.
-func NewEngine(options ...Option) *Engine {
-	engine := &Engine{
+func (r Request[T]) templateName() string   { return r.TemplateName }
+func (r Request[T]) templateInline() string { return r.Template }
+func (r Request[T]) format() Format         { return r.Format }
+func (r Request[T]) configFile() string     { return r.ConfigFile }
+func (r Request[T]) templateDir() string    { return r.TemplateDir }
+func (r Request[T]) payload() any           { return r.Payload }
+func (r Request[T]) model() any             { return r.Model }
+
+func newEngine() *engine {
+	return &engine{
 		templateFuncs: map[string]any{
 			"toJSON": toJSON,
 		},
 	}
-	for _, option := range options {
-		option(engine)
-	}
-	return engine
 }
 
-// LoadConfigFile loads engine configuration from a config file via pkg/config.
-func LoadConfigFile(path string) (Config, error) {
+func buildEngineFromRequest(request renderRequest) (*engine, error) {
+	e := newEngine()
+
+	if request.configFile() != "" {
+		cfg, err := loadConfigFile(request.configFile())
+		if err != nil {
+			return nil, err
+		}
+		e.templateDir = cfg.TemplateDir
+	}
+
+	if request.templateDir() != "" {
+		e.templateDir = request.templateDir()
+	}
+
+	return e, nil
+}
+
+func loadConfigFile(path string) (engineConfig, error) {
 	resolvedPath, err := resolveConfigPath(path)
 	if err != nil {
-		return Config{}, err
+		return engineConfig{}, err
 	}
 
-	var cfg Config
+	var cfg engineConfig
 	if err := appconfig.LoadInto(resolvedPath, &cfg); err != nil {
-		return Config{}, fmt.Errorf("load engine config: %w", err)
+		return engineConfig{}, fmt.Errorf("load engine config: %w", err)
 	}
 	return cfg, nil
-}
-
-// NewEngineFromConfigFile builds an engine from a config file, with optional overrides.
-func NewEngineFromConfigFile(path string, options ...Option) (*Engine, error) {
-	cfg, err := LoadConfigFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	configOptions := []Option{}
-	if cfg.TemplateDir != "" {
-		configOptions = append(configOptions, WithTemplateDir(cfg.TemplateDir))
-	}
-
-	engine := NewEngine(append(configOptions, options...)...)
-	return engine, nil
 }
 
 func resolveConfigPath(path string) (string, error) {
@@ -116,39 +122,46 @@ func resolveConfigPath(path string) (string, error) {
 	return filepath.Join(cwd, path), nil
 }
 
-// Render renders a request into the requested generic output type.
+// RenderAs renders a request into the requested generic output type.
 //
 // Output type behavior:
 // - string: returns rendered bytes as string
 // - []byte: returns rendered bytes
 // - any other type: requires json format and unmarshals into that type
-func Render[TIn any, TOut any](engine *Engine, request Request[TIn]) (TOut, error) {
+func RenderAs[TOut any](request renderRequest) (TOut, error) {
 	var out TOut
-	if engine == nil {
-		return out, errors.New("engine cannot be nil")
-	}
 
-	format, err := resolveFormat(request.Format)
+	e, err := buildEngineFromRequest(request)
 	if err != nil {
 		return out, err
 	}
 
-	templateBody, err := engine.resolveTemplate(request.Template, request.TemplateName)
+	format, err := resolveFormat(request.format())
 	if err != nil {
 		return out, err
 	}
 
-	ctx, err := buildContext(request.Model, request.Payload)
+	templateBody, err := e.resolveTemplate(request.templateInline(), request.templateName())
 	if err != nil {
 		return out, err
 	}
 
-	rendered, err := engine.renderByFormat(format, templateBody, ctx)
+	ctx, err := buildContext(request.model(), request.payload())
+	if err != nil {
+		return out, err
+	}
+
+	rendered, err := e.renderByFormat(format, templateBody, ctx)
 	if err != nil {
 		return out, err
 	}
 
 	return decodeOutput[TOut](format, rendered)
+}
+
+// Render renders and returns string output.
+func Render(request renderRequest) (string, error) {
+	return RenderAs[string](request)
 }
 
 func resolveFormat(format Format) (Format, error) {
@@ -185,7 +198,7 @@ func decodeOutput[TOut any](format Format, rendered []byte) (TOut, error) {
 	}
 }
 
-func (e *Engine) renderByFormat(format Format, tmpl string, ctx map[string]any) ([]byte, error) {
+func (e *engine) renderByFormat(format Format, tmpl string, ctx map[string]any) ([]byte, error) {
 	switch format {
 	case FormatJSON:
 		rendered, err := e.renderTextTemplate(tmpl, ctx)
@@ -206,7 +219,7 @@ func (e *Engine) renderByFormat(format Format, tmpl string, ctx map[string]any) 
 	}
 }
 
-func (e *Engine) resolveTemplate(inlineTemplate string, templateName string) (string, error) {
+func (e *engine) resolveTemplate(inlineTemplate string, templateName string) (string, error) {
 	if inlineTemplate != "" {
 		return inlineTemplate, nil
 	}
@@ -220,10 +233,15 @@ func (e *Engine) resolveTemplate(inlineTemplate string, templateName string) (st
 		return "", errors.New("template_dir must be a relative path")
 	}
 
-	path := templateName
+	baseDir := "."
 	if e.templateDir != "" {
-		path = filepath.Join(e.templateDir, templateName)
+		baseDir = e.templateDir
 	}
+	if !filepath.IsAbs(baseDir) {
+		baseDir = filepath.Join(".", baseDir)
+	}
+
+	path := filepath.Join(baseDir, templateName)
 	path = filepath.Clean(path)
 
 	data, err := os.ReadFile(path)
@@ -321,7 +339,7 @@ func toJSON(v any) (string, error) {
 	return string(b), nil
 }
 
-func (e *Engine) renderTextTemplate(tmpl string, ctx map[string]any) ([]byte, error) {
+func (e *engine) renderTextTemplate(tmpl string, ctx map[string]any) ([]byte, error) {
 	parsed, err := texttmpl.New("bolt").Funcs(texttmpl.FuncMap(e.templateFuncs)).Option("missingkey=error").Parse(tmpl)
 	if err != nil {
 		return nil, fmt.Errorf("parse template: %w", err)
@@ -334,7 +352,7 @@ func (e *Engine) renderTextTemplate(tmpl string, ctx map[string]any) ([]byte, er
 	return out.Bytes(), nil
 }
 
-func (e *Engine) renderHTMLTemplate(tmpl string, ctx map[string]any) ([]byte, error) {
+func (e *engine) renderHTMLTemplate(tmpl string, ctx map[string]any) ([]byte, error) {
 	parsed, err := htmltmpl.New("bolt").Funcs(htmltmpl.FuncMap(e.templateFuncs)).Option("missingkey=error").Parse(tmpl)
 	if err != nil {
 		return nil, fmt.Errorf("parse template: %w", err)

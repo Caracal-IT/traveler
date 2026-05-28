@@ -21,17 +21,17 @@ type Output struct {
 
 func main() {
 	templateDir := detectTemplateDir()
-	engine := bolt.NewEngine(bolt.WithTemplateDir(templateDir))
 
 	request := bolt.Request[Input]{
 		TemplateName: "profile.json.tmpl",
+		TemplateDir:  templateDir,
 		Payload:      Input{Name: "Bolt", Age: 28},
 		Model: map[string]any{
 			"tenant": "caracal",
 		},
 	}
 
-	output, err := bolt.Render[Input, Output](engine, request)
+	output, err := bolt.RenderAs[Output](request)
 	if err != nil {
 		exitErr(err)
 	}

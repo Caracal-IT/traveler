@@ -9,9 +9,7 @@ import (
 )
 
 func TestRender_JSONStringIn_JSONStringOut(t *testing.T) {
-	engine := NewEngine()
-
-	out, err := Render[string, string](engine, Request[string]{
+	out, err := Render(Request[string]{
 		Template: `{"message":"Hello {{.name}}","count":{{.count}}}`,
 		Payload:  `{"name":"Bolt","count":2}`,
 	})
@@ -19,7 +17,7 @@ func TestRender_JSONStringIn_JSONStringOut(t *testing.T) {
 	require.JSONEq(t, `{"message":"Hello Bolt","count":2}`, out)
 }
 
-func TestRender_ObjectIn_ObjectOut(t *testing.T) {
+func TestRenderAs_ObjectIn_ObjectOut(t *testing.T) {
 	type Input struct {
 		Name string `json:"name"`
 		Age  int    `json:"age"`
@@ -29,8 +27,7 @@ func TestRender_ObjectIn_ObjectOut(t *testing.T) {
 		Adult    bool   `json:"adult"`
 	}
 
-	engine := NewEngine()
-	out, err := Render[Input, Output](engine, Request[Input]{
+	out, err := RenderAs[Output](Request[Input]{
 		Template: `{"greeting":"Hi {{.name}}","adult":{{if ge .age 18}}true{{else}}false{{end}}}`,
 		Payload:  Input{Name: "Ada", Age: 31},
 	})
@@ -38,7 +35,7 @@ func TestRender_ObjectIn_ObjectOut(t *testing.T) {
 	require.Equal(t, Output{Greeting: "Hi Ada", Adult: true}, out)
 }
 
-func TestRender_MixedModelAndPayload(t *testing.T) {
+func TestRenderAs_MixedModelAndPayload(t *testing.T) {
 	type Model struct {
 		Tenant string `json:"tenant"`
 	}
@@ -47,8 +44,7 @@ func TestRender_MixedModelAndPayload(t *testing.T) {
 		Ref    string `json:"ref"`
 	}
 
-	engine := NewEngine()
-	out, err := Render[string, Output](engine, Request[string]{
+	out, err := RenderAs[Output](Request[string]{
 		Template: `{"source":"{{.model.tenant}}","ref":"{{.json.user.id}}-{{.tenant}}"}`,
 		Model:    Model{Tenant: "caracal"},
 		Payload:  `{"user":{"id":"u-99"},"tenant":"override"}`,
@@ -58,8 +54,7 @@ func TestRender_MixedModelAndPayload(t *testing.T) {
 }
 
 func TestRender_TextFormat(t *testing.T) {
-	engine := NewEngine()
-	out, err := Render[string, string](engine, Request[string]{
+	out, err := Render(Request[string]{
 		Template: `User {{.name}} has role {{.role}}`,
 		Format:   FormatText,
 		Payload:  `{"name":"Bolt","role":"admin"}`,
@@ -69,8 +64,7 @@ func TestRender_TextFormat(t *testing.T) {
 }
 
 func TestRender_HTMLFormatEscapes(t *testing.T) {
-	engine := NewEngine()
-	out, err := Render[string, string](engine, Request[string]{
+	out, err := Render(Request[string]{
 		Template: `<p>{{.name}}</p>`,
 		Format:   FormatHTML,
 		Payload:  `{"name":"<b>Bolt</b>"}`,
@@ -79,13 +73,12 @@ func TestRender_HTMLFormatEscapes(t *testing.T) {
 	require.Equal(t, `<p>&lt;b&gt;Bolt&lt;/b&gt;</p>`, out)
 }
 
-func TestRender_TextFormat_ObjectOutputRejected(t *testing.T) {
+func TestRenderAs_TextFormat_ObjectOutputRejected(t *testing.T) {
 	type Output struct {
 		Name string `json:"name"`
 	}
 
-	engine := NewEngine()
-	_, err := Render[string, Output](engine, Request[string]{
+	_, err := RenderAs[Output](Request[string]{
 		Template: `hello {{.name}}`,
 		Format:   FormatText,
 		Payload:  `{"name":"bolt"}`,
@@ -95,9 +88,9 @@ func TestRender_TextFormat_ObjectOutputRejected(t *testing.T) {
 }
 
 func TestRender_RejectsAbsoluteTemplateDir(t *testing.T) {
-	engine := NewEngine(WithTemplateDir(t.TempDir()))
-	_, err := Render[map[string]any, string](engine, Request[map[string]any]{
+	_, err := Render(Request[map[string]any]{
 		TemplateName: "profile.json.tmpl",
+		TemplateDir:  t.TempDir(),
 		Payload:      map[string]any{"name": "Bolt"},
 	})
 	require.Error(t, err)
@@ -106,8 +99,7 @@ func TestRender_RejectsAbsoluteTemplateDir(t *testing.T) {
 
 func TestRender_RejectsAbsoluteTemplateName(t *testing.T) {
 	absoluteTemplateName := filepath.Join(t.TempDir(), "profile.json.tmpl")
-	engine := NewEngine()
-	_, err := Render[map[string]any, string](engine, Request[map[string]any]{
+	_, err := Render(Request[map[string]any]{
 		TemplateName: absoluteTemplateName,
 		Payload:      map[string]any{"name": "Bolt"},
 	})
@@ -124,16 +116,16 @@ func TestRender_TemplateNameWithTemplateDir(t *testing.T) {
 	err = os.WriteFile(templatePath, []byte(`{"msg":"Hello {{.name}}"}`), 0o644)
 	require.NoError(t, err)
 
-	engine := NewEngine(WithTemplateDir(dir))
-	out, err := Render[string, string](engine, Request[string]{
+	out, err := Render(Request[string]{
 		TemplateName: "welcome.json.tmpl",
+		TemplateDir:  dir,
 		Payload:      `{"name":"Bolt"}`,
 	})
 	require.NoError(t, err)
 	require.JSONEq(t, `{"msg":"Hello Bolt"}`, out)
 }
 
-func TestNewEngineFromConfigFile_AppliesTemplateDir(t *testing.T) {
+func TestRender_ConfigFile_AppliesTemplateDir(t *testing.T) {
 	baseDir, err := os.MkdirTemp(".", "bolt-config-*")
 	require.NoError(t, err)
 	defer func() { _ = os.RemoveAll(baseDir) }()
@@ -150,10 +142,8 @@ func TestNewEngineFromConfigFile_AppliesTemplateDir(t *testing.T) {
 	err = os.WriteFile(configPath, []byte(`{"template_dir":"`+templatesDir+`"}`), 0o644)
 	require.NoError(t, err)
 
-	engine, err := NewEngineFromConfigFile(configPath)
-	require.NoError(t, err)
-
-	out, err := Render[string, string](engine, Request[string]{
+	out, err := Render(Request[string]{
+		ConfigFile:   configPath,
 		TemplateName: "welcome.json.tmpl",
 		Payload:      `{"name":"Bolt"}`,
 	})
@@ -161,7 +151,7 @@ func TestNewEngineFromConfigFile_AppliesTemplateDir(t *testing.T) {
 	require.JSONEq(t, `{"msg":"Hello Bolt"}`, out)
 }
 
-func TestNewEngineFromConfigFile_InvalidConfig(t *testing.T) {
+func TestRender_ConfigFile_InvalidConfig(t *testing.T) {
 	configFile, err := os.CreateTemp(".", "bolt-engine-invalid-*.json")
 	require.NoError(t, err)
 	defer func() {
@@ -172,12 +162,16 @@ func TestNewEngineFromConfigFile_InvalidConfig(t *testing.T) {
 	_, err = configFile.WriteString(`{invalid-json`)
 	require.NoError(t, err)
 
-	_, err = NewEngineFromConfigFile(configFile.Name())
+	_, err = Render(Request[string]{
+		ConfigFile:   configFile.Name(),
+		TemplateName: "welcome.json.tmpl",
+		Payload:      `{"name":"Bolt"}`,
+	})
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "load engine config")
 }
 
-func TestNewEngineFromConfigFile_RelativePathUsesCurrentDirectory(t *testing.T) {
+func TestRender_ConfigFile_RelativePathUsesCurrentDirectory(t *testing.T) {
 	originalWD, err := os.Getwd()
 	require.NoError(t, err)
 
@@ -194,10 +188,8 @@ func TestNewEngineFromConfigFile_RelativePathUsesCurrentDirectory(t *testing.T) 
 	err = os.WriteFile("engine.json", []byte(`{"template_dir":"templates"}`), 0o644)
 	require.NoError(t, err)
 
-	engine, err := NewEngineFromConfigFile("engine.json")
-	require.NoError(t, err)
-
-	out, err := Render[string, string](engine, Request[string]{
+	out, err := Render(Request[string]{
+		ConfigFile:   "engine.json",
 		TemplateName: "welcome.json.tmpl",
 		Payload:      `{"name":"Bolt"}`,
 	})
@@ -206,7 +198,6 @@ func TestNewEngineFromConfigFile_RelativePathUsesCurrentDirectory(t *testing.T) 
 }
 
 func BenchmarkRenderJSON(b *testing.B) {
-	engine := NewEngine()
 	request := Request[map[string]any]{
 		Template: `{"id":"{{.id}}","name":"{{.name}}","meta":{{toJSON .meta}},"ok":true}`,
 		Payload: map[string]any{
@@ -218,7 +209,7 @@ func BenchmarkRenderJSON(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := Render[map[string]any, []byte](engine, request)
+		_, err := RenderAs[[]byte](request)
 		if err != nil {
 			b.Fatal(err)
 		}

@@ -8,13 +8,11 @@ import (
 )
 
 func main() {
-	engine := bolt.NewEngine()
-
 	templateString := `{"message":"Hello {{.name}}","tenant":"{{.model.tenant}}","role":"{{.json.role}}"}`
 	modelString := `{"tenant":"caracal"}`
 	inputJSONString := `{"name":"Bolt","role":"admin"}`
 
-	outputJSONString, err := bolt.Render[string, string](engine, bolt.Request[string]{
+	outputJSONString, err := bolt.Render(bolt.Request[string]{
 		Template: templateString,
 		Model:    modelString,
 		Payload:  inputJSONString,
@@ -37,7 +35,7 @@ func main() {
 	fmt.Println(outputJSONString)
 
 	textTemplate := `User {{.name}} has role {{.role}}`
-	textOut, err := bolt.Render[string, string](engine, bolt.Request[string]{
+	textOut, err := bolt.Render(bolt.Request[string]{
 		Template: textTemplate,
 		Format:   bolt.FormatText,
 		Payload:  inputJSONString,
@@ -48,7 +46,7 @@ func main() {
 	}
 
 	htmlTemplate := `<p>{{.name}}</p>`
-	htmlOut, err := bolt.Render[string, string](engine, bolt.Request[string]{
+	htmlOut, err := bolt.Render(bolt.Request[string]{
 		Template: htmlTemplate,
 		Format:   bolt.FormatHTML,
 		Payload:  `{"name":"<b>Bolt</b>"}`,

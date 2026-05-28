@@ -19,20 +19,18 @@ type Output struct {
 }
 
 func main() {
-	engine, err := bolt.NewEngineFromConfigFile("engine.local.json")
-	if err != nil {
-		exitErr(err)
-	}
+	configPath := detectConfigPath()
 
 	request := bolt.Request[Input]{
 		TemplateName: "welcome.json.tmpl",
+		ConfigFile:   configPath,
 		Payload:      Input{Name: "Bolt", Role: "admin"},
 		Model: map[string]any{
 			"tenant": "caracal",
 		},
 	}
 
-	output, err := bolt.Render[Input, Output](engine, request)
+	output, err := bolt.RenderAs[Output](request)
 	if err != nil {
 		exitErr(err)
 	}
@@ -46,6 +44,8 @@ func main() {
 		exitErr(err)
 	}
 
+	fmt.Println("Config file:")
+	fmt.Println(configPath)
 	fmt.Println()
 	fmt.Println("Template name:")
 	fmt.Println(request.TemplateName)
@@ -60,4 +60,17 @@ func main() {
 func exitErr(err error) {
 	_, _ = fmt.Fprintf(os.Stderr, "demo error: %v\n", err)
 	os.Exit(1)
+}
+
+func detectConfigPath() string {
+	candidates := []string{
+		"cmd/bolt-demo-config/engine.root.json",
+		"engine.local.json",
+	}
+	for _, candidate := range candidates {
+		if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+			return candidate
+		}
+	}
+	return "cmd/bolt-demo-config/engine.root.json"
 }
